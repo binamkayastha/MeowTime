@@ -1,8 +1,13 @@
 {
   "name": "routini",
-  "author": "codopanda",
+  "author": "binamkayastha",
   "version": "1.0.0",
-  "keywords": ["pebble-app"],
+  "keywords": [
+    "pebble-app",
+    "adhd",
+    "routine",
+    "time management"
+  ],
   "private": true,
   "dependencies": {},
   "pebble": {
