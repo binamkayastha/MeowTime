@@ -20,8 +20,8 @@ static void select_click_handler(ClickRecognizerRef recognizer, void *context) {
   current_routine_index++;
   if (current_routine_index == len) {
     text_layer_set_text(text_layer_middle, "Done! Great Job");
-  } else if (current_routine_index >= len) {
-    text_layer_set_text(text_layer_middle, "TODO: Go back to home page");
+  } else if (current_routine_index >= len || current_routine_index == -1) {
+    text_layer_set_text(text_layer_middle, "Click select to start routine!");
   } else {
     text_layer_set_text(text_layer_middle, routine[current_routine_index]);
   }
@@ -45,7 +45,7 @@ void init() {
   // Add title
   text_layer_title = text_layer_create(GRect(0, 0, 144, 40));
   text_layer_set_text_alignment(text_layer_title, GTextAlignmentCenter);
-  text_layer_set_text(text_layer_title, "ROUTINI");
+  text_layer_set_text(text_layer_title, "ROUTINII");
   text_layer_set_font(text_layer_title, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));
   layer_add_child(window_get_root_layer(window),
                     text_layer_get_layer(text_layer_title));
