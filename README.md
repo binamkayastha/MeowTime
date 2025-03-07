@@ -14,6 +14,16 @@ time. Additionally:
 * It had buttons so I could use it outside with gloves.
 * It replaces a distracting phone and takes care of - telling time, setting alarms, doing pomodoro, and seeing notifications at a glance.
 
+
+What I really find myself wanting is a routine app! I have a routine on my phone
+app but find that my mornings are either ruined because I either: 
+
+* I follow the routine app on my phone, and then get distracted by it.
+* I don't follow the routine app on my phone, and forget to do my routine, or forget to do everything in my routine.
+
+The pebble does one thing really well - managing time without being distracting.
+And so I thought of building Routini! A routine app that fits on your tiny pebble :D 
+
 ## To build and run
 (If on mac)
 
