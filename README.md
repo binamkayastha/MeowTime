@@ -1,5 +1,16 @@
-# Routini
+# MeowTime
+For a long time I have really really wanted a routine app on my pebble
+smartwatch! I have a routine app on my phone but find that my mornings are
+either ruined because I either: 
 
+* I follow the routine app on my phone, and then get distracted by it.
+* I don't follow the routine app on my phone, and forget to do my routine, or forget to do everything in my routine.
+
+Modern smartwatches are bulky, slow, and always on the charger. The pebble is
+the best smart watch for me - it manages time without being distracting. And so
+I thought of building MeowTime! When do we start doing our routines? MEOW!
+
+## Pebble Hackthon #002
 This is a routine on the pebble made for The Pebble Hackathon #002 which began
 shortly after it was announced that the pebble was coming back!
 
@@ -15,14 +26,6 @@ time. Additionally:
 * It replaces a distracting phone and takes care of - telling time, setting alarms, doing pomodoro, and seeing notifications at a glance.
 
 
-What I really find myself wanting is a routine app! I have a routine on my phone
-app but find that my mornings are either ruined because I either: 
-
-* I follow the routine app on my phone, and then get distracted by it.
-* I don't follow the routine app on my phone, and forget to do my routine, or forget to do everything in my routine.
-
-The pebble does one thing really well - managing time without being distracting.
-And so I thought of building Routini! A routine app that fits on your tiny pebble :D 
 
 ## To build and run
 (If on mac)
