@@ -11,8 +11,11 @@
   "private": true,
   "dependencies": {},
   "pebble": {
-    "displayName": "routini",
-    "uuid": "9e57e6fd-9f1b-4f8e-9186-885782deaefe",
+    "capabilities": [
+      "configurable"
+    ],
+    "displayName": "MeowTime",
+    "uuid": "a94a2224-fbad-4e26-ac6c-87091c1d271d",
     "sdkVersion": "3",
     "enableMultiJS": true,
     "targetPlatforms": [
