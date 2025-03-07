@@ -28,7 +28,13 @@
       "dummy"
     ],
     "resources": {
-      "media": []
+      "media": [
+        {
+          "name": "ACTION_BAR_ICON_CHECK",
+          "type": "bitmap",
+          "file": "images/action_bar_icon_check.png"
+        }
+      ]
     }
   }
 }
