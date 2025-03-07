@@ -2,9 +2,6 @@
 	"name": "web-app-config",
 	"private": true,
 	"version": "0.0.1",
-	"engines": {
-		"node": "^18.17.1"
-	},
 	"type": "module",
 	"scripts": {
 		"dev": "vite dev",
