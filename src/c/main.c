@@ -3,7 +3,14 @@
 Window *window;
 TextLayer *text_layer_title;
 TextLayer *text_layer_middle;
-int current_routine_index = 0;
+// -1 means the screen is on the main page
+int current_routine_index = -1;
+// TODO: Settings not implemented yet, requires multiple windows
+// char *main_top= "Click up to go to settings!";
+char *main_message = "Click select the next routine!";
+char *next_routine = "Morning Routine";
+// TODO: All routines not implemented yet, requires multiple windows
+// char *main_bottom= "Click down to see all routines!";
 
 
 char *routine[] = {
@@ -21,7 +28,7 @@ static void select_click_handler(ClickRecognizerRef recognizer, void *context) {
   if (current_routine_index == len) {
     text_layer_set_text(text_layer_middle, "Done! Great Job");
   } else if (current_routine_index >= len || current_routine_index == -1) {
-    text_layer_set_text(text_layer_middle, "Click select to start routine!");
+    text_layer_set_text(text_layer_middle, main_message);
   } else {
     text_layer_set_text(text_layer_middle, routine[current_routine_index]);
   }
