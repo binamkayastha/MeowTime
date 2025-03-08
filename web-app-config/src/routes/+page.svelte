@@ -51,15 +51,85 @@
 		document.location = return_to + encodeURIComponent(JSON.stringify(settings));
 	}
 
-	// TODO: install daisy
+	let new_routine_modal: any;
+	const routineExamples = [
+		'Morning Routine',
+		'Brew Coffee',
+		'Clean Elephant',
+		'Evening Routine',
+		'Cook food'
+	];
+	const taskExamples = [
+		'Feed Routini',
+		'Do a dance',
+		'Open Catnip Drawer',
+		'Charge your Pebble',
+		"Hydrate yo'self",
+		'Brush teeth',
+		'Clean litterbox',
+		'Run a marathon'
+	];
+	function getRandom<T>(arr: Array<T>): T {
+		return arr[Math.floor(Math.random() * arr.length)];
+	}
 </script>
 
 <div class="flex h-svh flex-col gap-5 overflow-scroll p-10 text-center">
 	<h1 class="text-xl">MeowTime Settings</h1>
 	Your Routines
-	<button class="btn btn-primary">+ Create Routine</button>
+	<button class="btn btn-primary" onclick={() => new_routine_modal.showModal()}
+		>Create Routine</button
+	>
 	<div class="flex-1"></div>
 	<button class="btn btn-secondary" onclick={sendSettingsToPebble}>Submit to Pebble</button>
+
+	<dialog bind:this={new_routine_modal} id="new_routine_modal" class="modal">
+		<div class="modal-box">
+			<h3 class="pb-5 text-lg font-bold">Add a new routine!</h3>
+			<div class="flex flex-col gap-2">
+				<h1 class="pt-5 text-lg">Routine Name:</h1>
+				<input
+					type="text"
+					placeholder={`Routine Name ex. ${getRandom(routineExamples)}`}
+					class="input"
+				/>
+				<h1 class="pt-5 text-lg">Add Tasks to Routine</h1>
+				<input
+					type="text "
+					placeholder={`Task Name ex. ${getRandom(taskExamples)}`}
+					class="input"
+				/>
+				<button class="btn btn-primary">Add new task</button>
+			</div>
+
+			<div class="modal-action flex justify-between">
+				<form method="dialog">
+					<!-- if there is a button in form, it will close the modal -->
+					<button class="btn">Cancel</button>
+				</form>
+				<form method="dialog">
+					<!-- if there is a button in form, it will close the modal -->
+					<button class="btn btn-secondary">Add Routine</button>
+				</form>
+			</div>
+			<form method="dialog">
+				<button class="btn btn-sm btn-circle btn-ghost absolute top-2 right-2">✕</button>
+			</form>
+		</div>
+		<form method="dialog" class="modal-backdrop">
+			<button>close</button>
+		</form>
+	</dialog>
 </div>
 
 <!-- <input type="time" class="input"/> -->
+
+<style>
+	input {
+		width: 100%;
+	}
+	.modal-backdrop {
+		/* Make modal backdrop darker so users don't think they can click on the elements behind the modal */
+		background-color: rgba(0, 0, 0, 0.7);
+	}
+</style>
