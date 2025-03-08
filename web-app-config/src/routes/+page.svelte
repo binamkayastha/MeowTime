@@ -57,9 +57,9 @@
 <div class="flex h-svh flex-col gap-5 overflow-scroll p-10 text-center">
 	<h1 class="text-xl">MeowTime Settings</h1>
 	Your Routines
-	<button class="btn btn-secondary">+ Create Routine</button>
+	<button class="btn btn-primary">+ Create Routine</button>
 	<div class="flex-1"></div>
-	<button class="btn btn-primary" onclick={sendSettingsToPebble}>Submit to Pebble</button>
+	<button class="btn btn-secondary" onclick={sendSettingsToPebble}>Submit to Pebble</button>
 </div>
 
 <!-- <input type="time" class="input"/> -->
