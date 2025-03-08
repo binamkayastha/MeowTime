@@ -38,8 +38,5 @@
         }
       ]
     }
-  },
-  "devDependencies": {
-    "daisyui": "^5.0.0"
   }
 }
