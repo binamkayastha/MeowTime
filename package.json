@@ -9,7 +9,6 @@
     "time management"
   ],
   "private": true,
-  "dependencies": {},
   "pebble": {
     "capabilities": [
       "configurable"
@@ -39,5 +38,8 @@
         }
       ]
     }
+  },
+  "devDependencies": {
+    "daisyui": "^5.0.0"
   }
 }
