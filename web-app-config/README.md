@@ -1,6 +1,15 @@
-# sv
+# MeowTime Config Page
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+This is the page used for configuring the pebble app. When the user clicks the settings cog for MeowTime in the pebble app, this page is what loads.
+
+The page is hosted on Cloudflare Pages and that's where it's served from.
+
+The only file of importance at the moment is src/routes/+page.svelte 
+
+In retrospect it may have been overkill to use SvelteKit for this, but I've
+built so many SvelteKit static pages that it's my "golden path" for whenever
+I want to create a static page, and it enables me to expand the settings page
+in the future.
 
 ## Creating a project
 
