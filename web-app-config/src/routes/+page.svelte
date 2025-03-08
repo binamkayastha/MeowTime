@@ -49,6 +49,13 @@
 
 	function sendSettingsToPebble() {
 		const settings: Record<string, any> = userSettings;
+		const simplerDictionary = {};
+		debugger;
+		for (const [routineName, routine] of Object.entries(settings.value.routines)) {
+			console.log('routineName: ' + routineName);
+			console.log('routine tasks: ' + routine.tasks.join(','));
+			simplerDictionary[routineName] = routine.tasks.join(',');
+		}
 
 		// Adapted from: https://developer.rebble.io/developer.pebble.com/guides/user-interfaces/app-configuration-static/index.html
 		// Determine the correct return URL (emulator vs real watch)
@@ -64,8 +71,11 @@
 			}
 		}
 		const return_to = getQueryParam('return_to') || 'pebblejs://close#';
+
 		// Encode and send the data when the page closes
-		document.location = return_to + encodeURIComponent(JSON.stringify(settings));
+		console.log('Final data being sent to pebble kit js');
+		console.log(JSON.stringify(simplerDictionary));
+		document.location = return_to + encodeURIComponent(JSON.stringify(simplerDictionary));
 	}
 
 	const routineExamples = [
