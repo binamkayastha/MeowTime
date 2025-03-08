@@ -199,11 +199,12 @@
 	}
 </script>
 
-<div class="flex h-svh flex-col gap-5 overflow-scroll p-10 text-center">
-	<h1 class="text-xl">MeowTime Settings</h1>
-	Your Routines
+<div class="w-full text-slate-800 p-8 bg-red-200 font-bold text-center"> Settings feature coming soon! For now please enjoy our exiting routines on the watch for meow. </div>
+<div class="flex h-svh flex-col gap-2 overflow-scroll p-10 text-center">
+	<h1 class="text-xl pb-2">MeowTime Settings</h1>
+	<h2 class="text-md pb-1">Your Routines</h2>
 	{#each Object.entries(userSettings.value.routines || {}) as [routineName, routine] (routineName)}
-		<div class="flex items-baseline gap-2 rounded-md border-2 bg-gray-700 p-1">
+		<div class="flex items-baseline gap-2 rounded-md border-2 shadow-md p-1">
 			<div>
 				{routineName}
 			</div>
