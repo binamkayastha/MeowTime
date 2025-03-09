@@ -1,11 +1,36 @@
 #include "pebble.h"
+#include <stdio.h>
+#include <string.h>
+#include <stdarg.h>
+#include <string.h>
 
-#define NUM_MENU_SECTIONS 2
+
+#define NUM_MENU_SECTIONS 1
 #define NUM_MENU_ICONS 3
-#define NUM_FIRST_MENU_ITEMS 3
-#define NUM_SECOND_MENU_ITEMS 1
+#define NUM_FIRST_MENU_ITEMS 6
+#define NUM_SECOND_MENU_ITEMS 0
+
+
+const int counts[] = {9, 12, 22, 10, 6, 13};
+const char *routines[][100] = {
+  {"Morning Routine", "Feed Cat", "Drink Water", "Brush Teeth", "Duo Lingo", "Shower", "Make bed", "Measure weight", "Eat breakfast" },
+  {"Evening Routine", "Budgeting", "Put away dishes on table", "Brush teeth", "Fill water bottle for the night", "Journal", "Create plan for tomorrow", "Read Stuff", "Pet cat", "Put out work cloths", "Set alarm for tomorrow morning", "Put phone in drawer" }, 
+  {"Lunchtime Poutine", "Source: seasonsandsuppers.ca/authentic-canadian-poutine-recipe/", "Gather the following ingredients", "3 Tbsp cornstarch", "2 Tbsp water", "6 Tbsp unsalted butter", "1/4 cup unbleached all purpose flour", "20 oz beef broth", "10 oz chicken broth", "Pepper, to taste", "Prepare the gravy: In bowl, dissolve cornstarch in water. Set aside.", "In saucepan, melt butter.", "Add flour and cook, stir regularly, 5 minutes, till it turns golden brown.", "Add beef and chicken broth, bring to a boil, stirring with a whisk.", "Stir in about HALF the cornstarch mixture and simmer for a minute or so.", "Season with pepper. Add salt, if necessary, to taste.", "Keep gravy warm till fries are ready", "Add baked fries to a large, clean bowl. Season lightly with salt while still warm.", "Add a ladle of hot poutine gravy to the bowl and using tongs, toss the fries in the gravy.", "Add more gravy, as needed to mostly coat the fries.", "Add the cheese curds and toss with the hot fries and gravy.", "Serve with freshly ground pepper. Serve immediately. Serve to cat (if safe)." },
+  {"Cat Yoga", "Lay on back", "Cat tail pose left", "Cat tail pose right", "Cat Cow", "Extended Cat Pose left", "Extended Cat Pose right", "Cat Cow", "Cobra", "Child Pose" },
+  {"Feed Cat", "Feed Cat", "Pet Cat", "Groom Cat", "Open catnip drawer and leave it open", "Go to work" },
+  {"Huh?", "What?", "Huh?", "Oh no", "It seem like my cat Routini has taken over the app :o", "Don't worry, we'll get this sorted out post hackathon with real templates", "Thanks for trying out my app!", "I'm very tired, it's 5:03 AM and I've been up all night making cat checklists", "I don't even have a cat. I don't even know if they can eat poutine.", "Thanks for reading so far!", "I hope you like it!", "And if you have suggestions, send them my way :D", "Email: binamkayastha@gmail.com" } 
+};
+
+char progress[100];
+
+
 
 static Window *s_main_window;
+static Window *s_routine_window;
+// TextLayer *text_layer_title;
+TextLayer *text_layer_middle;
+TextLayer *text_layer_bottom;
+
 static MenuLayer *s_menu_layer;
 static GBitmap *s_menu_icons[NUM_MENU_ICONS];
 static GBitmap *s_background_bitmap;
@@ -36,7 +61,7 @@ static void menu_draw_header_callback(GContext* ctx, const Layer *cell_layer, ui
   switch (section_index) {
     case 0:
       // Draw title text in the section header
-      menu_cell_basic_header_draw(ctx, cell_layer, "Some example items");
+      menu_cell_basic_header_draw(ctx, cell_layer, "           Meow Time");
       break;
     case 1:
       menu_cell_basic_header_draw(ctx, cell_layer, "One more");
@@ -45,51 +70,47 @@ static void menu_draw_header_callback(GContext* ctx, const Layer *cell_layer, ui
 }
 
 static void menu_draw_row_callback(GContext* ctx, const Layer *cell_layer, MenuIndex *cell_index, void *data) {
-  // Determine which section we're going to draw in
-  switch (cell_index->section) {
-    case 0:
-      // Use the row to specify which item we'll draw
-      switch (cell_index->row) {
-        case 0:
-          // This is a basic menu item with a title and subtitle
-          menu_cell_basic_draw(ctx, cell_layer, "Basic Item", "With a subtitle", NULL);
-          break;
-        case 1:
-          // This is a basic menu icon with a cycling icon
-          menu_cell_basic_draw(ctx, cell_layer, "Icon Item", "Select to cycle", NULL);
-          break;
-        // case 2: 
-        //   {
-        //     // Here we use the graphics context to draw something different
-        //     // In this case, we show a strip of a watchface's background
-        //     GSize size = layer_get_frame(cell_layer).size;
-        //     graphics_draw_bitmap_in_rect(ctx, s_background_bitmap, GRect(0, 0, size.w, size.h));
-        //   }
-        //   break;
-      }
-      break;
-    case 1:
-      switch (cell_index->row) {
-        case 0:
-          // There is title draw for something more simple than a basic menu item
-          menu_cell_title_draw(ctx, cell_layer, "Final Item");
-          break;
-      }
+  if(cell_index->section == 0 && cell_index->row < 6){
+    menu_cell_basic_draw(ctx, cell_layer, routines[cell_index->row][0], NULL, NULL);
+  }
+}
+int current_routine = 0;
+int current_routine_index = 0;
+
+
+static void update_text() {
+  int len = counts[current_routine];
+  printf("sizeof %d\n", len); // \n indicates a newline character
+  // A single click has just occured
+  current_routine_index++;
+  vibes_short_pulse();
+  printf("Right before text change.");
+  if (current_routine_index == len) {
+    text_layer_set_text(text_layer_middle, "Done! Great Job. ");
+    text_layer_set_text(text_layer_bottom, "Routini meows");
+  } else if (current_routine_index >= len || current_routine_index == -1) {
+    current_routine_index = 0;
+    window_stack_pop(true);
+  } else {
+    text_layer_set_text(text_layer_middle, routines[current_routine][current_routine_index]);
+    printf("setting text to %s", routines[current_routine][current_routine_index]);
+    snprintf(progress, 10, "%d/%d", current_routine_index, len-1);
+    text_layer_set_text(text_layer_bottom, progress);
   }
 }
 
 static void menu_select_callback(MenuLayer *menu_layer, MenuIndex *cell_index, void *data) {
-  // Use the row to specify which item will receive the select action
-  switch (cell_index->row) {
-    // This is the menu item with the cycling icon
-    case 1:
-      // Cycle the icon
-      s_current_icon = (s_current_icon + 1) % NUM_MENU_ICONS;
-      // After changing the icon, mark the layer to have it updated
-      layer_mark_dirty(menu_layer_get_layer(menu_layer));
-      break;
+  printf("menus eledcted");
+  printf("%d", cell_index->row);
+  if(cell_index->row < 6){
+    s_current_icon = (s_current_icon + 1) % NUM_MENU_ICONS;
+    // After changing the icon, mark the layer to have it updated
+    layer_mark_dirty(menu_layer_get_layer(menu_layer));
+    current_routine = cell_index->row;
+    current_routine_index = 0;
+    update_text();
+    window_stack_push(s_routine_window, true);
   }
-
 }
 
 static void main_window_load(Window *window) {
@@ -134,6 +155,55 @@ static void main_window_unload(Window *window) {
   gbitmap_destroy(s_background_bitmap);
 }
 
+
+static void select_click_handler(ClickRecognizerRef recognizer, void *context) {
+  printf("Click handler %d\n", current_routine_index); // \n indicates a newline character
+  update_text();
+}
+
+/* Routini meows
+const char *strings[] = {
+       "Hello, World!",
+       "Goodbye, World!",
+       "Welcome to C programming",
+       "Random string 1",
+       "Random string 2",
+       "Random string 3",
+       "Random string 4",
+       "Random string 5",
+       "Random string 6",
+       "Random string 7"
+   };
+
+   // Number of strings in the list
+   int num_strings = sizeof(strings) / sizeof(strings[0]);
+
+   // Seed the random number generator with the current time
+   srand(time(NULL));
+
+   // Generate a random index between 0 and num_strings - 1
+   int random_index = rand() % num_strings;
+
+   // Print the random string
+   printf("Random string: %s\n", strings[random_index]);
+*/
+
+
+static void routine_window_click_config_provider(void *context) {
+  printf("Click config provider\n"); // \n indicates a newline character
+  // https://developer.rebble.io/developer.pebble.com/guides/events-and-services/buttons/index.html
+  // Subcribe to button click events here
+  ButtonId id = BUTTON_ID_SELECT;  // The Select button
+  // ButtonId id = BUTTON_ID_DOWN;       // The Down button
+  //     uint16_t repeat_interval_ms = 200;  // Fire every 200 ms while held down
+  // window_single_repeating_click_subscribe(id, repeat_interval_ms,
+                                                // down_repeating_click_handler);
+  window_single_click_subscribe(id, select_click_handler);
+}
+
+
+
+
 static void init() {
   s_main_window = window_create();
   window_set_window_handlers(s_main_window, (WindowHandlers) {
@@ -141,10 +211,34 @@ static void init() {
     .unload = main_window_unload,
   });
   window_stack_push(s_main_window, true);
+  
+  s_routine_window = window_create();
+  window_set_click_config_provider(s_routine_window, routine_window_click_config_provider);
+  
+  text_layer_middle = text_layer_create(GRect(0, 20, 144, 200));
+  text_layer_set_text_alignment(text_layer_middle, GTextAlignmentCenter);
+  text_layer_set_overflow_mode(text_layer_middle, GTextOverflowModeWordWrap);
+  text_layer_set_text(text_layer_middle, routines[current_routine_index][0]);
+  // text_layer_set_font(text_layer_middle, fonts_get_system_font(FONT_KEY_GOTHIC_14));
+  text_layer_set_font(text_layer_middle, fonts_get_system_font(FONT_KEY_GOTHIC_18));
+  layer_add_child(window_get_root_layer(s_routine_window),
+                    text_layer_get_layer(text_layer_middle));
+  
+  text_layer_bottom = text_layer_create(GRect(0, 120, 144, 400));
+  text_layer_set_text_alignment(text_layer_bottom, GTextAlignmentCenter);
+  text_layer_set_overflow_mode(text_layer_bottom, GTextOverflowModeWordWrap);
+  // text_layer_set_text(text_layer_bottom, routines[current_routine_index][0]);
+  text_layer_set_font(text_layer_bottom, fonts_get_system_font(FONT_KEY_GOTHIC_14));
+  layer_add_child(window_get_root_layer(s_routine_window),
+                    text_layer_get_layer(text_layer_bottom));
 }
 
 static void deinit() {
+  // text_layer_destroy(text_layer_title);
+  text_layer_destroy(text_layer_middle);
+  text_layer_destroy(text_layer_bottom);
   window_destroy(s_main_window);
+  window_destroy(s_routine_window);
 }
 
 int main(void) {
@@ -152,3 +246,217 @@ int main(void) {
   app_event_loop();
   deinit();
 }
+
+
+
+
+
+
+// 
+// 
+// 
+// 
+// 
+// #include <pebble.h>
+// #include <string.h> // Add this line
+// #include <stdlib.h> // Ensure this is included for malloc and free
+// char *strdup(const char *s) {
+//     size_t len = strlen(s) + 1;
+//     char *dup = malloc(len);
+//     if (dup != NULL) {
+//         memcpy(dup, s, len);
+//     }
+//     return dup;
+// }
+
+
+// Window *window;
+// TextLayer *text_layer_title;
+// TextLayer *text_layer_middle;
+// static SimpleMenuLayer *s_simple_menu_layer;
+// static SimpleMenuItem menuItems[1];
+// static SimpleMenuSection section;
+
+// // SimpleMenuLayer *menu_layer;
+// // static SimpleMenuLayer s_simple_menu_layer;
+// // -1 means the screen is on the main page
+// int current_routine_index = -1;
+// // TODO: Settings not implemented yet, requires multiple windows
+// // char *main_top= "Click up to go to settings!";
+// char *main_message = "Click select the next routine!";
+// char *next_routine = "Morning Routine";
+// // TODO: All routines not implemented yet, requires multiple windows
+// // char *main_bottom= "Click down to see all routines!";
+
+
+// char *routine[] = {
+//   "Make Bed",
+//   "Drink Water",
+//   "Brush Teeth",
+// };
+
+// const int counts[] = {9, 12, 22, 10, 6, 16};
+// const char *routines[][100] = {
+//   {"Morning Routine", "Feed Cat", "Drink Water", "Brush Teeth", "Duo Lingo", "Shower", "Make bed", "Measure weight", "Eat breakfast" },
+//   {"Evening Routine", "Budgeting", "Put away dishes on table", "Brush teeth", "Fill water bottle for the night", "Journal", "Create plan for tomorrow", "Read Stuff", "Pet cat", "Put out work cloths", "Set alarm for tomorrow morning", "Put phone in drawer" }, 
+//   {"Lunchtime Poutine", "Soruce: seasonsandsuppers.ca/authentic-canadian-poutine-recipe/", "Gather the following ingredients", "3 Tbsp cornstarch", "2 Tbsp water", "6 Tbsp unsalted butter", "1/4 cup unbleached all purpose flour", "20 oz beef broth", "10 oz chicken broth", "Pepper, to taste", "Prepare the gravy: In bowl, dissolve cornstarch in water. Set aside.", "In saucepan, melt butter.", "Add flour and cook, stir regularly, 5 minutes, till it turns golden brown.", "Add beef and chicken broth, bring to a boil, stirring with a whisk.", "Stir in about HALF the cornstarch mixture and simmer for a minute or so.", "Season with pepper. Add salt, if necessary, to taste.", "Keep gravy warm till fries are ready", "Add baked fries to a large, clean bowl. Season lightly with salt while still warm.", "Add a ladle of hot poutine gravy to the bowl and using tongs, toss the fries in the gravy.", "Add more gravy, as needed to mostly coat the fries.", "Add the cheese curds and toss with the hot fries and gravy.", "Serve with freshly ground pepper. Serve immediately. Serve to cat (if safe)." },
+//   {"Cat Yoga", "Lay on back", "Cat tail pose left", "Cat tail pose right", "Cat Cow", "Extended Cat Pose left", "Extended Cat Pose right", "Cat Cow", "Cobra", "Child Pose" },
+//   {"Feed Cat", "Feed Cat", "Pet Cat", "Groom Cat", "Open catnip drawer and leave it open", "Go to work" },
+//   {"Huh?", "What?", "Huh?", "Oh no", "It seem like my cat Routini has taken over the app :o", "Don't worry, we'll get this sorted out post hackathon with real templates", "Thanks for trying out my app!", "I'm very tired, it's 5:03 AM and I've been up all night making cat checklists", "I don't even have a cat. I don't even know if they can eat poutine.", "Thanks for reading so far!", "I hope you like it!", "And if you have suggestions, send them my way :D", "Email: binamkayastha@gmail.com" } 
+// };
+// typedef struct {
+//   char* name;
+//   char** list_of_tasks; // = (char **)malloc(count * sizeof(char *));
+// } Routine;
+// // static char s_buffer[MAX_LENGTH];
+// // snprintf(s_buffer, sizeof(s_buffer), "Location: %s", location_name);
+
+
+// Routine **all_routines;
+
+
+// static void select_click_handler(ClickRecognizerRef recognizer, void *context) {
+//   printf("Click handler %d\n", current_routine_index); // \n indicates a newline character
+//   // int len = sizeof(routines)/sizeof(routines[0]);
+//   int len = counts[0];
+//   printf("sizeof %d\n", len); // \n indicates a newline character
+//   // A single click has just occured
+//   current_routine_index++;
+//   vibes_short_pulse();
+//   if (current_routine_index == len) {
+//     text_layer_set_text(text_layer_middle, "Done! Great Job");
+//   } else if (current_routine_index >= len || current_routine_index == -1) {
+//     current_routine_index = -1;
+//     text_layer_set_text(text_layer_middle, main_message);
+//   } else {
+//     text_layer_set_text(text_layer_middle, routines[0][current_routine_index]);
+//   }
+// }
+
+// static void click_config_provider(void *context) {
+//   printf("Click config provider\n"); // \n indicates a newline character
+//   // https://developer.rebble.io/developer.pebble.com/guides/events-and-services/buttons/index.html
+//   // Subcribe to button click events here
+//   ButtonId id = BUTTON_ID_SELECT;  // The Select button
+//   // ButtonId id = BUTTON_ID_DOWN;       // The Down button
+//   //     uint16_t repeat_interval_ms = 200;  // Fire every 200 ms while held down
+//   // window_single_repeating_click_subscribe(id, repeat_interval_ms,
+//                                                 // down_repeating_click_handler);
+//   window_single_click_subscribe(id, select_click_handler);
+// }
+
+// static void inbox_received_callback(DictionaryIterator *iter, void *context) {
+//   // A new message has been successfully received
+//   Tuple *routine_tuple = dict_read_next(iter);
+//   int i = 0;
+//   while (routine_tuple != NULL) {
+//     all_routines[i] = (Routine *) malloc(sizeof(Routine));
+//     all_routines[i]->name = strdup(routine_tuple->value->cstring);
+    
+//     // static char s_buffer[MAX_LENGTH];
+//     // snprintf(s_buffer, sizeof(s_buffer), "Location: %s", location_name);
+//     // why [] instead of *?
+//     char comma_separated_string[5000];
+//     snprintf(comma_separated_string, sizeof(comma_separated_string), "%s", routine_tuple->value->cstring);
+
+//     // Count the number of commas to determine the number of items
+//     int count = 1;
+//     for (char *p = comma_separated_string; *p; p++) {
+//         if (*p == ',') count++;
+//     }
+//     all_routines[i]->list_of_tasks = (char **)malloc(count* sizeof(char *));
+//     int index = 0;
+//     char *token = strtok(comma_separated_string, ",");
+//     while (token != NULL) {
+//         all_routines[i]->list_of_tasks[index] = strdup(token); // Duplicate the token
+//         index++;
+//         token = strtok(NULL, ",");
+//     }
+//     // Print the list
+//     for (int i = 0; i < count; i++) {
+//         printf("%s\n", all_routines[i]->list_of_tasks[i]);
+//         // free(list_of_items[i]); // Free each duplicated string
+//     }
+    
+//     routine_tuple = dict_read_next(iter);
+//   }
+//   // dictionary?
+//   // char *morning_ritual = rituals_tuple -> key -> cstring
+//   // char *morning_ritual = rituals_tuple -> value -> cstring
+// }
+// static void inbox_dropped_callback(AppMessageResult reason, void *context) {
+//   // A message was received, but had to be dropped
+//   APP_LOG(APP_LOG_LEVEL_ERROR, "Message dropped. Reason: %d", (int)reason);
+// }
+
+
+
+
+// void init() {
+//   window = window_create();
+
+//   // Add title
+//   text_layer_title = text_layer_create(GRect(0, 0, 144, 40));
+//   text_layer_set_text_alignment(text_layer_title, GTextAlignmentCenter);
+//   text_layer_set_text(text_layer_title, "MeowTime");
+//   text_layer_set_font(text_layer_title, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));
+//   layer_add_child(window_get_root_layer(window),
+//                     text_layer_get_layer(text_layer_title));
+
+
+//   // Add middletext
+//   text_layer_middle = text_layer_create(GRect(0, 70, 144, 40));
+//   text_layer_set_text_alignment(text_layer_middle, GTextAlignmentCenter);
+//   text_layer_set_text(text_layer_middle, routine[current_routine_index]);
+//   text_layer_set_font(text_layer_middle, fonts_get_system_font(FONT_KEY_ROBOTO_CONDENSED_21));
+//   layer_add_child(window_get_root_layer(window),
+//                     text_layer_get_layer(text_layer_middle));
+
+//   menuItems[0] = (SimpleMenuItem) { .title= "hello world" };
+//   // for (int i = 0; i < 6; i++) {
+//   //     simpleMenuItems[i] = (SimpleMenuItem) {
+//   //         .title = routines[0][i]
+//   //     };
+//   // }
+//   section =  (SimpleMenuSection) {
+//           .title = "Choose your routine",
+//           .items = menuItems,
+//           .num_items = 1
+//       };
+  
+//   // simple_menu_layer_init(&s_simple_menu_layer,
+//   //                         layer_get_bounds(root_layer),
+//   //                         window,
+//   //                         s_menu_sections,
+//   //                         sizeof(s_menu_sections) / sizeof(s_menu_sections[0]),
+//   //                         NULL
+//   //  );
+//   Layer *window_layer = window_get_root_layer(window);
+//   GRect bounds = layer_get_frame(window_layer);
+//   s_simple_menu_layer = simple_menu_layer_create(bounds, window, &section, 1, NULL);
+//   layer_add_child(window_layer, simple_menu_layer_get_layer(s_simple_menu_layer));
+      
+//   // menu_layer = simple_menu_layer_create(GRect(0, 20, 144, 40), window, &sections, 1, NULL);
+//   layer_add_child(window_get_root_layer(window), simple_menu_layer_get_layer(menu_layer));
+  
+//   // Add button click providers
+//   printf("Hello, World\n"); // \n indicates a newline character
+//   window_set_click_config_provider(window, click_config_provider);
+
+//   window_stack_push(window, true);
+//   app_message_register_inbox_received(inbox_received_callback);
+//   app_message_register_inbox_dropped(inbox_dropped_callback);
+// }
+
+// void deinit() {
+//   text_layer_destroy(text_layer_title);
+//   text_layer_destroy(text_layer_middle);
+//   window_destroy(window);
+// }
+
+// int main() {
+//   init();
+//   app_event_loop();
+//   deinit();
+//   return 0;
+// }
