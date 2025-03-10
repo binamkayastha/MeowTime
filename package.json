@@ -53,9 +53,12 @@
           "name": "IMAGE_THREE",
           "type": "bitmap",
           "file": "images/3.png"
+        },
+        {
+          "name": "IMAGE_CAT",
+          "type": "bitmap",
+          "file": "images/cat.png"
         }
-        
-        
       ]
     }
   }

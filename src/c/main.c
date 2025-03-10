@@ -34,6 +34,32 @@ TextLayer *text_layer_bottom;
 static MenuLayer *s_menu_layer;
 static GBitmap *s_menu_icons[NUM_MENU_ICONS];
 static GBitmap *s_background_bitmap;
+static GBitmapSequence *s_sequence;
+static GBitmap *s_bitmap;
+static BitmapLayer *s_bitmap_layer;
+
+
+static GBitmap *s_bitmap_cat;
+static BitmapLayer *s_bitmap_layer_cat;
+
+
+
+uint32_t first_delay_ms = 10;
+
+static void timer_handler(void *context) {
+  uint32_t next_delay;
+
+  // Advance to the next APNG frame, and get the delay for this frame
+  if(gbitmap_sequence_update_bitmap_next_frame(s_sequence, s_bitmap, &next_delay)) {
+    // Set the new frame into the BitmapLayer
+    bitmap_layer_set_bitmap(s_bitmap_layer, s_bitmap);
+    layer_mark_dirty(bitmap_layer_get_layer(s_bitmap_layer));
+
+    // Timer for that frame's delay
+    app_timer_register(next_delay, timer_handler, NULL);
+  }
+}
+
 
 static int s_current_icon = 0;
 
@@ -86,10 +112,14 @@ static void update_text() {
   vibes_short_pulse();
   printf("Right before text change.");
   if (current_routine_index == len) {
-    text_layer_set_text(text_layer_middle, "Done! Great Job. ");
+    text_layer_set_text(text_layer_middle, "");
     text_layer_set_text(text_layer_bottom, "Routini meows");
+    layer_add_child(window_get_root_layer(s_routine_window), 
+                              bitmap_layer_get_layer(s_bitmap_layer_cat));
+    app_timer_register(first_delay_ms, timer_handler, NULL);
   } else if (current_routine_index >= len || current_routine_index == -1) {
     current_routine_index = 0;
+    layer_remove_from_parent(bitmap_layer_get_layer(s_bitmap_layer_cat));
     window_stack_pop(true);
   } else {
     text_layer_set_text(text_layer_middle, routines[current_routine][current_routine_index]);
@@ -118,6 +148,9 @@ static void main_window_load(Window *window) {
   s_menu_icons[0] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_ONE);
   s_menu_icons[1] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_TWO);
   s_menu_icons[2] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_THREE);
+
+  s_bitmap_cat = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_THREE);
+  
 
   // And also load the background
   s_background_bitmap = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_ACTION_BAR_ICON_CHECK);
@@ -224,13 +257,33 @@ static void init() {
   layer_add_child(window_get_root_layer(s_routine_window),
                     text_layer_get_layer(text_layer_middle));
   
-  text_layer_bottom = text_layer_create(GRect(0, 120, 144, 400));
+  text_layer_bottom = text_layer_create(GRect(0, 140, 144, 400));
   text_layer_set_text_alignment(text_layer_bottom, GTextAlignmentCenter);
   text_layer_set_overflow_mode(text_layer_bottom, GTextOverflowModeWordWrap);
   // text_layer_set_text(text_layer_bottom, routines[current_routine_index][0]);
   text_layer_set_font(text_layer_bottom, fonts_get_system_font(FONT_KEY_GOTHIC_14));
   layer_add_child(window_get_root_layer(s_routine_window),
                     text_layer_get_layer(text_layer_bottom));
+  
+  s_bitmap_layer = bitmap_layer_create(GRect(5, 5, 48, 48));
+  
+  s_sequence = gbitmap_sequence_create_with_resource(RESOURCE_ID_IMAGE_CAT);
+  // Create blank GBitmap using APNG frame size
+  GSize frame_size = gbitmap_sequence_get_bitmap_size(s_sequence);
+  s_bitmap = gbitmap_create_blank(frame_size, GBitmapFormat8Bit);
+  bitmap_layer_set_compositing_mode(s_bitmap_layer, GCompOpSet);
+  bitmap_layer_set_bitmap(s_bitmap_layer, s_bitmap);
+  layer_add_child(window_get_root_layer(s_routine_window), 
+                      bitmap_layer_get_layer(s_bitmap_layer));
+
+  layer_add_child(window_get_root_layer(s_routine_window),
+                    bitmap_layer_get_layer(s_bitmap_layer));
+  
+  s_bitmap_layer_cat = bitmap_layer_create(GRect(35, 5, 100, 139));
+  bitmap_layer_set_compositing_mode(s_bitmap_layer_cat, GCompOpSet);
+  bitmap_layer_set_bitmap(s_bitmap_layer_cat, s_bitmap_cat);
+  
+
 }
 
 static void deinit() {
@@ -239,6 +292,12 @@ static void deinit() {
   text_layer_destroy(text_layer_bottom);
   window_destroy(s_main_window);
   window_destroy(s_routine_window);
+  gbitmap_sequence_destroy(s_sequence);
+  gbitmap_destroy(s_bitmap);
+  bitmap_layer_destroy(s_bitmap_layer);
+  gbitmap_destroy(s_bitmap_cat);
+  bitmap_layer_destroy(s_bitmap_layer_cat);
+
 }
 
 int main(void) {
