@@ -4,10 +4,8 @@
 #include <stdio.h>
 #include <string.h>
 
-#define NUM_MENU_SECTIONS 1
 #define NUM_MENU_ICONS 3
-#define NUM_FIRST_MENU_ITEMS 6
-#define NUM_SECOND_MENU_ITEMS 0
+#define NUM_MENU_ITEMS 6
 
 const int counts[] = {9, 12, 22, 10, 6, 13};
 const char *routines[][100] = {
@@ -182,7 +180,6 @@ static void main_window_load(Window *window) {
     s_menu_layer = menu_layer_create(bounds);
     menu_layer_set_callbacks(s_menu_layer, NULL,
                              (MenuLayerCallbacks){
-                                 .get_num_sections = menu_get_num_sections_callback,
                                  .get_num_rows = menu_get_num_rows_callback,
                                  .get_header_height = menu_get_header_height_callback,
                                  .draw_header = menu_draw_header_callback,
@@ -208,17 +205,8 @@ static void main_window_unload(Window *window) {
     gbitmap_destroy(s_background_bitmap);
 }
 
-static uint16_t menu_get_num_sections_callback(MenuLayer *menu_layer, void *data) { return NUM_MENU_SECTIONS; }
-
 static uint16_t menu_get_num_rows_callback(MenuLayer *menu_layer, uint16_t section_index, void *data) {
-    switch (section_index) {
-    case 0:
-        return NUM_FIRST_MENU_ITEMS;
-    case 1:
-        return NUM_SECOND_MENU_ITEMS;
-    default:
-        return 0;
-    }
+    return NUM_MENU_ITEMS;
 }
 
 static int16_t menu_get_header_height_callback(MenuLayer *menu_layer, uint16_t section_index, void *data) {
@@ -226,20 +214,11 @@ static int16_t menu_get_header_height_callback(MenuLayer *menu_layer, uint16_t s
 }
 
 static void menu_draw_header_callback(GContext *ctx, const Layer *cell_layer, uint16_t section_index, void *data) {
-    // Determine which section we're working with
-    switch (section_index) {
-    case 0:
-        // Draw title text in the section header
-        menu_cell_basic_header_draw(ctx, cell_layer, "           Meow Time");
-        break;
-    case 1:
-        menu_cell_basic_header_draw(ctx, cell_layer, "One more");
-        break;
-    }
+    menu_cell_basic_header_draw(ctx, cell_layer, "           Meow Time");
 }
 
 static void menu_draw_row_callback(GContext *ctx, const Layer *cell_layer, MenuIndex *cell_index, void *data) {
-    if (cell_index->section == 0 && cell_index->row < 6) {
+    if (cell_index->section == 0 && cell_index->row < NUM_MENU_ITEMS) {
         menu_cell_basic_draw(ctx, cell_layer, routines[cell_index->row][0], NULL, NULL);
     }
 }
