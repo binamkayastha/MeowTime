@@ -84,40 +84,7 @@ int main(void) {
 static void init() {
     create_and_push_main_window();
 
-    s_routine_window = window_create();
-    window_set_click_config_provider(s_routine_window, routine_window_click_config_provider);
-
-    text_layer_middle = text_layer_create(GRect(0, 20, 144, 200));
-    text_layer_set_text_alignment(text_layer_middle, GTextAlignmentCenter);
-    text_layer_set_overflow_mode(text_layer_middle, GTextOverflowModeWordWrap);
-    text_layer_set_text(text_layer_middle, routines[current_routine_index][0]);
-    // text_layer_set_font(text_layer_middle,
-    // fonts_get_system_font(FONT_KEY_GOTHIC_14));
-    text_layer_set_font(text_layer_middle, fonts_get_system_font(FONT_KEY_GOTHIC_18));
-    layer_add_child(window_get_root_layer(s_routine_window), text_layer_get_layer(text_layer_middle));
-
-    text_layer_bottom = text_layer_create(GRect(0, 140, 144, 400));
-    text_layer_set_text_alignment(text_layer_bottom, GTextAlignmentCenter);
-    text_layer_set_overflow_mode(text_layer_bottom, GTextOverflowModeWordWrap);
-    // text_layer_set_text(text_layer_bottom, routines[current_routine_index][0]);
-    text_layer_set_font(text_layer_bottom, fonts_get_system_font(FONT_KEY_GOTHIC_14));
-    layer_add_child(window_get_root_layer(s_routine_window), text_layer_get_layer(text_layer_bottom));
-
-    s_bitmap_layer = bitmap_layer_create(GRect(5, 5, 48, 48));
-
-    s_sequence = gbitmap_sequence_create_with_resource(RESOURCE_ID_IMAGE_CAT);
-    // Create blank GBitmap using APNG frame size
-    GSize frame_size = gbitmap_sequence_get_bitmap_size(s_sequence);
-    s_bitmap = gbitmap_create_blank(frame_size, GBitmapFormat8Bit);
-    bitmap_layer_set_compositing_mode(s_bitmap_layer, GCompOpSet);
-    bitmap_layer_set_bitmap(s_bitmap_layer, s_bitmap);
-    layer_add_child(window_get_root_layer(s_routine_window), bitmap_layer_get_layer(s_bitmap_layer));
-
-    layer_add_child(window_get_root_layer(s_routine_window), bitmap_layer_get_layer(s_bitmap_layer));
-
-    s_bitmap_layer_cat = bitmap_layer_create(GRect(35, 5, 100, 139));
-    bitmap_layer_set_compositing_mode(s_bitmap_layer_cat, GCompOpSet);
-    bitmap_layer_set_bitmap(s_bitmap_layer_cat, s_bitmap_cat);
+    create_routine_window();
 }
 
 static void deinit() {
@@ -141,6 +108,45 @@ static void create_and_push_main_window() {
                                               });
     window_stack_push(s_main_window, true);
 }
+
+static void create_routine_window() {
+    s_routine_window = window_create();
+    window_set_click_config_provider(s_routine_window, routine_window_click_config_provider);
+
+    // Add middle text layer
+    text_layer_middle = text_layer_create(GRect(0, 20, 144, 200));
+    text_layer_set_text_alignment(text_layer_middle, GTextAlignmentCenter);
+    text_layer_set_overflow_mode(text_layer_middle, GTextOverflowModeWordWrap);
+    text_layer_set_text(text_layer_middle, routines[current_routine_index][0]);
+    // text_layer_set_font(text_layer_middle,
+    // fonts_get_system_font(FONT_KEY_GOTHIC_14));
+    text_layer_set_font(text_layer_middle, fonts_get_system_font(FONT_KEY_GOTHIC_18));
+    layer_add_child(window_get_root_layer(s_routine_window), text_layer_get_layer(text_layer_middle));
+
+    // Add bottom text layer
+    text_layer_bottom = text_layer_create(GRect(0, 140, 144, 400));
+    text_layer_set_text_alignment(text_layer_bottom, GTextAlignmentCenter);
+    text_layer_set_overflow_mode(text_layer_bottom, GTextOverflowModeWordWrap);
+    // text_layer_set_text(text_layer_bottom, routines[current_routine_index][0]);
+    text_layer_set_font(text_layer_bottom, fonts_get_system_font(FONT_KEY_GOTHIC_14));
+    layer_add_child(window_get_root_layer(s_routine_window), text_layer_get_layer(text_layer_bottom));
+
+    // Create bitmap layer for static cat
+    s_bitmap_layer_cat = bitmap_layer_create(GRect(35, 5, 100, 139));
+    bitmap_layer_set_compositing_mode(s_bitmap_layer_cat, GCompOpSet);
+    bitmap_layer_set_bitmap(s_bitmap_layer_cat, s_bitmap_cat);
+
+    // Add bitmap layer for cat gif (currently doesn't work)
+    s_bitmap_layer = bitmap_layer_create(GRect(5, 5, 48, 48));
+    s_sequence = gbitmap_sequence_create_with_resource(RESOURCE_ID_IMAGE_CAT);
+    // Create blank GBitmap using APNG frame size
+    GSize frame_size = gbitmap_sequence_get_bitmap_size(s_sequence);
+    s_bitmap = gbitmap_create_blank(frame_size, GBitmapFormat8Bit);
+    bitmap_layer_set_compositing_mode(s_bitmap_layer, GCompOpSet);
+    bitmap_layer_set_bitmap(s_bitmap_layer, s_bitmap);
+    layer_add_child(window_get_root_layer(s_routine_window), bitmap_layer_get_layer(s_bitmap_layer));
+}
+
 
 static void routine_window_click_config_provider(void *context) {
     printf("Click config provider\n"); // \n indicates a newline character

@@ -5,9 +5,9 @@ int main(void);
 static void init();
 static void deinit();
 
-static void routine_window_click_config_provider(void *context);
-
 static void create_and_push_main_window();
+static void create_routine_window();
+static void routine_window_click_config_provider(void *context);
 
 static void main_window_load(Window *window);
 static void main_window_unload(Window *window);
