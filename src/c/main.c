@@ -54,21 +54,21 @@ const char *routines[][100] = {
 
 char progress[100];
 
-static Window *s_main_window;
-static Window *s_routine_window;
 // TextLayer *text_layer_title;
-TextLayer *text_layer_middle;
 TextLayer *text_layer_bottom;
+TextLayer *text_layer_middle;
+
+static BitmapLayer *s_bitmap_layer;
+static BitmapLayer *s_bitmap_layer_cat;
+static GBitmap *s_background_bitmap;
+static GBitmap *s_bitmap;
+static GBitmap *s_bitmap_cat;
+static GBitmap *s_menu_icons[NUM_MENU_ICONS];
+static GBitmapSequence *s_sequence;
 
 static MenuLayer *s_menu_layer;
-static GBitmap *s_menu_icons[NUM_MENU_ICONS];
-static GBitmap *s_background_bitmap;
-static GBitmapSequence *s_sequence;
-static GBitmap *s_bitmap;
-static BitmapLayer *s_bitmap_layer;
-
-static GBitmap *s_bitmap_cat;
-static BitmapLayer *s_bitmap_layer_cat;
+static Window *s_main_window;
+static Window *s_routine_window;
 
 uint32_t first_delay_ms = 10;
 static int s_current_icon = 0;
@@ -83,21 +83,27 @@ int main(void) {
 
 static void init() {
     create_and_push_main_window();
-
     create_routine_window();
 }
 
 static void deinit() {
     // text_layer_destroy(text_layer_title);
-    text_layer_destroy(text_layer_middle);
     text_layer_destroy(text_layer_bottom);
+    text_layer_destroy(text_layer_middle);
+
+    bitmap_layer_destroy(s_bitmap_layer);
+    bitmap_layer_destroy(s_bitmap_layer_cat);
+    gbitmap_destroy(s_background_bitmap);
+    gbitmap_destroy(s_bitmap);
+    gbitmap_destroy(s_bitmap_cat);
+    gbitmap_destroy(s_menu_icons[0]);
+    gbitmap_destroy(s_menu_icons[1]);
+    gbitmap_destroy(s_menu_icons[2]);
+    gbitmap_sequence_destroy(s_sequence);
+
+    menu_layer_destroy(s_menu_layer);
     window_destroy(s_main_window);
     window_destroy(s_routine_window);
-    gbitmap_sequence_destroy(s_sequence);
-    gbitmap_destroy(s_bitmap);
-    bitmap_layer_destroy(s_bitmap_layer);
-    gbitmap_destroy(s_bitmap_cat);
-    bitmap_layer_destroy(s_bitmap_layer_cat);
 }
 
 static void create_and_push_main_window() {
