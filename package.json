@@ -36,19 +36,16 @@
           "type": "bitmap",
           "file": "images/action_bar_icon_check.png"
         },
-        
         {
           "name": "IMAGE_ONE",
           "type": "bitmap",
           "file": "images/1.png"
         },
-        
         {
           "name": "IMAGE_TWO",
           "type": "bitmap",
           "file": "images/2.png"
         },
-        
         {
           "name": "IMAGE_THREE",
           "type": "bitmap",
