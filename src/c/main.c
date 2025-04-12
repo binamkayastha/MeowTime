@@ -147,7 +147,6 @@ static void create_routine_window() {
     layer_add_child(window_get_root_layer(s_routine_window), bitmap_layer_get_layer(s_bitmap_layer));
 }
 
-
 static void routine_window_click_config_provider(void *context) {
     printf("Click config provider\n"); // \n indicates a newline character
     // https://developer.rebble.io/developer.pebble.com/guides/events-and-services/buttons/index.html
