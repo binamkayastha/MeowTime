@@ -52,12 +52,15 @@ void store_init_if_none() {
 int numOfRoutines;
 int *numOfTasksPerRoutine;
 char ***newRoutines;
+struct RoutineInfo routineInfo;
 
 struct RoutineInfo store_get_routines(bool firstRun) {
     int key = 0;
 
-    if (firstRun) {
+    if (!firstRun) {
+        freeStore();
     }
+
     numOfRoutines = persist_read_int(key);
     newRoutines = malloc(sizeof(char**) * numOfRoutines);
     numOfTasksPerRoutine = malloc(sizeof(int) * numOfRoutines);
@@ -69,26 +72,25 @@ struct RoutineInfo store_get_routines(bool firstRun) {
 
         for(int j=0; j < numOfTasksPerRoutine[i]; j++) {
             int size_of_string = persist_get_size(++key);
-
             newRoutines[i][j] = malloc(sizeof(char)*size_of_string);
             persist_read_string(key, newRoutines[i][j], size_of_string);
             printf(newRoutines[i][j]);
         }
     }
-    struct RoutineInfo routineInfo = { numOfRoutines, numOfTasksPerRoutine, newRoutines };
+    routineInfo = (struct RoutineInfo){ numOfRoutines, numOfTasksPerRoutine, newRoutines };
     return routineInfo;
 }
 
 
 void freeStore() {
-    for(int i=0; i < numOfRoutines; i++) {
-        for(int j=0; j < numOfTasksPerRoutine[i]; j++) {
-            free(newRoutines[i][j]);
+    for(int i=0; i < routineInfo.numOfRoutines; i++) {
+        for(int j=0; j < routineInfo.numOfTasksPerRoutine[i]; j++) {
+            free(routineInfo.newRoutines[i][j]);
         }
-        free(newRoutines[i]);
+        free(routineInfo.newRoutines[i]);
     }
-    free(numOfTasksPerRoutine);
-    free(newRoutines);
+    free(routineInfo.newRoutines);
+    free(routineInfo.numOfTasksPerRoutine);
 }
 
 void deleteStore() {
