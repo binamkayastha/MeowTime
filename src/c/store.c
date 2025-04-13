@@ -48,10 +48,12 @@ void store_init_if_none() {
     }
 }
 
+
 int numOfRoutines;
 int *numOfTasksPerRoutine;
 char ***newRoutines;
-char*** store_load_routines(bool firstRun) {
+
+struct RoutineInfo store_load_routines(bool firstRun) {
     int key = 0;
 
     if (firstRun) {
@@ -74,7 +76,8 @@ char*** store_load_routines(bool firstRun) {
             printf(newRoutines[i][j]);
         }
     }
-    return newRoutines;
+    struct RoutineInfo routineInfo = { numOfRoutines, numOfTasksPerRoutine, newRoutines };
+    return routineInfo;
 }
 
 

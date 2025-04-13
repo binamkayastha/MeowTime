@@ -6,7 +6,6 @@
 #include <string.h>
 
 #define NUM_MENU_ICONS 3
-#define NUM_MENU_ITEMS 6
 
 const int counts[] = {9, 12, 22, 10, 6, 13};
 const char *routines[][100] = {
@@ -84,9 +83,11 @@ int main(void) {
     deinit();
 }
 
+struct RoutineInfo routineInfo;
 static void init() {
     store_init_if_none();
-    newRoutines = store_load_routines(true);
+    routineInfo = store_load_routines(true);
+    newRoutines = routineInfo.newRoutines;
 
     create_and_push_main_window();
     create_routine_window();
@@ -225,7 +226,7 @@ static void main_window_unload(Window *window) {
 }
 
 static uint16_t menu_get_num_rows_callback(MenuLayer *menu_layer, uint16_t section_index, void *data) {
-    return NUM_MENU_ITEMS;
+    return routineInfo.numOfRoutines;
 }
 
 static int16_t menu_get_header_height_callback(MenuLayer *menu_layer, uint16_t section_index, void *data) {
@@ -237,8 +238,8 @@ static void menu_draw_header_callback(GContext *ctx, const Layer *cell_layer, ui
 }
 
 static void menu_draw_row_callback(GContext *ctx, const Layer *cell_layer, MenuIndex *cell_index, void *data) {
-    if (cell_index->section == 0 && cell_index->row < NUM_MENU_ITEMS) {
-        menu_cell_basic_draw(ctx, cell_layer, routines[cell_index->row][0], NULL, NULL);
+    if (cell_index->section == 0 && cell_index->row < routineInfo.numOfRoutines) {
+        menu_cell_basic_draw(ctx, cell_layer, newRoutines[cell_index->row][0], NULL, NULL);
     }
 }
 
