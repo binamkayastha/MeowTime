@@ -1,5 +1,6 @@
 #include "main.h"
 #include "pebble.h"
+#include "store.h"
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
@@ -75,6 +76,8 @@ static int s_current_icon = 0;
 int current_routine = 0;
 int current_routine_index = 0;
 
+char ***newRoutines;
+
 int main(void) {
     init();
     app_event_loop();
@@ -82,6 +85,9 @@ int main(void) {
 }
 
 static void init() {
+    store_init_if_none();
+    newRoutines = store_load_routines(true);
+
     create_and_push_main_window();
     create_routine_window();
 }
@@ -104,6 +110,8 @@ static void deinit() {
     menu_layer_destroy(s_menu_layer);
     window_destroy(s_main_window);
     window_destroy(s_routine_window);
+
+    freeStore();
 }
 
 static void create_and_push_main_window() {
@@ -206,14 +214,14 @@ static void main_window_load(Window *window) {
 
 static void main_window_unload(Window *window) {
     // Destroy the menu layer
-    menu_layer_destroy(s_menu_layer);
-
-    // Cleanup the menu icons
-    for (int i = 0; i < NUM_MENU_ICONS; i++) {
-        gbitmap_destroy(s_menu_icons[i]);
-    }
-
-    gbitmap_destroy(s_background_bitmap);
+    // menu_layer_destroy(s_menu_layer);
+    //
+    // // Cleanup the menu icons
+    // for (int i = 0; i < NUM_MENU_ICONS; i++) {
+    //     gbitmap_destroy(s_menu_icons[i]);
+    // }
+    //
+    // gbitmap_destroy(s_background_bitmap);
 }
 
 static uint16_t menu_get_num_rows_callback(MenuLayer *menu_layer, uint16_t section_index, void *data) {
