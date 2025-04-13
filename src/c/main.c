@@ -7,51 +7,6 @@
 
 #define NUM_MENU_ICONS 3
 
-const int counts[] = {9, 12, 22, 10, 6, 13};
-const char *routines[][100] = {
-    {"Morning Routine", "Feed Cat", "Drink Water", "Brush Teeth", "Duo Lingo", "Shower", "Make bed", "Measure weight",
-     "Eat breakfast"},
-    {"Evening Routine", "Budgeting", "Put away dishes on table", "Brush teeth", "Fill water bottle for the night",
-     "Journal", "Create plan for tomorrow", "Read Stuff", "Pet cat", "Put out work cloths",
-     "Set alarm for tomorrow morning", "Put phone in drawer"},
-    {"Lunchtime Poutine",
-     "Source: seasonsandsuppers.ca/authentic-canadian-poutine-recipe/",
-     "Gather the following ingredients",
-     "3 Tbsp cornstarch",
-     "2 Tbsp water",
-     "6 Tbsp unsalted butter",
-     "1/4 cup unbleached all purpose flour",
-     "20 oz beef broth",
-     "10 oz chicken broth",
-     "Pepper, to taste",
-     "Prepare the gravy: In bowl, dissolve cornstarch in water. Set aside.",
-     "In saucepan, melt butter.",
-     "Add flour and cook, stir regularly, 5 minutes, till it turns golden "
-     "brown.",
-     "Add beef and chicken broth, bring to a boil, stirring with a whisk.",
-     "Stir in about HALF the cornstarch mixture and simmer for a minute or so.",
-     "Season with pepper. Add salt, if necessary, to taste.",
-     "Keep gravy warm till fries are ready",
-     "Add baked fries to a large, clean bowl. Season lightly with salt while "
-     "still warm.",
-     "Add a ladle of hot poutine gravy to the bowl and using tongs, toss the "
-     "fries in the gravy.",
-     "Add more gravy, as needed to mostly coat the fries.",
-     "Add the cheese curds and toss with the hot fries and gravy.",
-     "Serve with freshly ground pepper. Serve immediately. Serve to cat (if "
-     "safe)."},
-    {"Cat Yoga", "Lay on back", "Cat tail pose left", "Cat tail pose right", "Cat Cow", "Extended Cat Pose left",
-     "Extended Cat Pose right", "Cat Cow", "Cobra", "Child Pose"},
-    {"Feed Cat", "Feed Cat", "Pet Cat", "Groom Cat", "Open catnip drawer and leave it open", "Go to work"},
-    {"Huh?", "What?", "Huh?", "Oh no", "It seem like my cat Routini has taken over the app :o",
-     "Don't worry, we'll get this sorted out post hackathon with real "
-     "templates",
-     "Thanks for trying out my app!",
-     "I'm very tired, it's 5:03 AM and I've been up all night making cat "
-     "checklists",
-     "I don't even have a cat. I don't even know if they can eat poutine.", "Thanks for reading so far!",
-     "I hope you like it!", "And if you have suggestions, send them my way :D", "Email: binamkayastha@gmail.com"}};
-
 char progress[100];
 
 // TextLayer *text_layer_title;
@@ -75,7 +30,6 @@ static int s_current_icon = 0;
 int current_routine = 0;
 int current_routine_index = 0;
 
-char ***newRoutines;
 
 int main(void) {
     init();
@@ -86,8 +40,7 @@ int main(void) {
 struct RoutineInfo routineInfo;
 static void init() {
     store_init_if_none();
-    routineInfo = store_load_routines(true);
-    newRoutines = routineInfo.newRoutines;
+    routineInfo = store_get_routines(true);
 
     create_and_push_main_window();
     create_routine_window();
@@ -132,7 +85,7 @@ static void create_routine_window() {
     text_layer_middle = text_layer_create(GRect(0, 20, 144, 200));
     text_layer_set_text_alignment(text_layer_middle, GTextAlignmentCenter);
     text_layer_set_overflow_mode(text_layer_middle, GTextOverflowModeWordWrap);
-    text_layer_set_text(text_layer_middle, routines[current_routine_index][0]);
+    text_layer_set_text(text_layer_middle, routineInfo.newRoutines[current_routine_index][0]);
     // text_layer_set_font(text_layer_middle,
     // fonts_get_system_font(FONT_KEY_GOTHIC_14));
     text_layer_set_font(text_layer_middle, fonts_get_system_font(FONT_KEY_GOTHIC_18));
@@ -142,7 +95,7 @@ static void create_routine_window() {
     text_layer_bottom = text_layer_create(GRect(0, 140, 144, 400));
     text_layer_set_text_alignment(text_layer_bottom, GTextAlignmentCenter);
     text_layer_set_overflow_mode(text_layer_bottom, GTextOverflowModeWordWrap);
-    // text_layer_set_text(text_layer_bottom, routines[current_routine_index][0]);
+    // text_layer_set_text(text_layer_bottom, routineInfo.newRoutines[current_routine_index][0]);
     text_layer_set_font(text_layer_bottom, fonts_get_system_font(FONT_KEY_GOTHIC_14));
     layer_add_child(window_get_root_layer(s_routine_window), text_layer_get_layer(text_layer_bottom));
 
@@ -239,14 +192,14 @@ static void menu_draw_header_callback(GContext *ctx, const Layer *cell_layer, ui
 
 static void menu_draw_row_callback(GContext *ctx, const Layer *cell_layer, MenuIndex *cell_index, void *data) {
     if (cell_index->section == 0 && cell_index->row < routineInfo.numOfRoutines) {
-        menu_cell_basic_draw(ctx, cell_layer, newRoutines[cell_index->row][0], NULL, NULL);
+        menu_cell_basic_draw(ctx, cell_layer, routineInfo.newRoutines[cell_index->row][0], NULL, NULL);
     }
 }
 
 static void menu_select_callback(MenuLayer *menu_layer, MenuIndex *cell_index, void *data) {
     printf("menus eledcted");
     printf("%d", cell_index->row);
-    if (cell_index->row < 6) {
+    if (cell_index->row < routineInfo.numOfRoutines) {
         s_current_icon = (s_current_icon + 1) % NUM_MENU_ICONS;
         // After changing the icon, mark the layer to have it updated
         layer_mark_dirty(menu_layer_get_layer(menu_layer));
@@ -258,7 +211,7 @@ static void menu_select_callback(MenuLayer *menu_layer, MenuIndex *cell_index, v
 }
 
 static void update_text() {
-    int len = counts[current_routine];
+    int len = routineInfo.numOfTasksPerRoutine[current_routine];
     printf("sizeof %d\n", len); // \n indicates a newline character
     // A single click has just occured
     current_routine_index++;
@@ -274,8 +227,8 @@ static void update_text() {
         layer_remove_from_parent(bitmap_layer_get_layer(s_bitmap_layer_cat));
         window_stack_pop(true);
     } else {
-        text_layer_set_text(text_layer_middle, routines[current_routine][current_routine_index]);
-        printf("setting text to %s", routines[current_routine][current_routine_index]);
+        text_layer_set_text(text_layer_middle, routineInfo.newRoutines[current_routine][current_routine_index]);
+        printf("setting text to %s", routineInfo.newRoutines[current_routine][current_routine_index]);
         snprintf(progress, 10, "%d/%d", current_routine_index, len - 1);
         text_layer_set_text(text_layer_bottom, progress);
     }

@@ -20,7 +20,7 @@ void store_init_if_none() {
 
     char *firstRoutine[] = {"Tutorial", "This is a routine", "Keep pressing right to see the next task!",
                             "You can add your own routines through the app settings in the pebble",
-                            "Do your routines and Routini the cat will be pleased. Meow"};
+                            "Do your routines and Routini the cat will be pleased."};
     int numberOfTasks = len(firstRoutine);
     persist_write_int(++key, numberOfTasks);
     for (int i = 0; i < numberOfTasks; i++) {
@@ -53,7 +53,7 @@ int numOfRoutines;
 int *numOfTasksPerRoutine;
 char ***newRoutines;
 
-struct RoutineInfo store_load_routines(bool firstRun) {
+struct RoutineInfo store_get_routines(bool firstRun) {
     int key = 0;
 
     if (firstRun) {
