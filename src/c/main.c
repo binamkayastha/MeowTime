@@ -13,19 +13,16 @@ char progress[100];
 TextLayer *text_layer_bottom;
 TextLayer *text_layer_middle;
 
-static BitmapLayer *s_bitmap_layer;
 static BitmapLayer *s_bitmap_layer_cat;
 static GBitmap *s_background_bitmap;
 static GBitmap *s_bitmap;
 static GBitmap *s_bitmap_cat;
 static GBitmap *s_menu_icons[NUM_MENU_ICONS];
-static GBitmapSequence *s_sequence;
 
 static MenuLayer *s_menu_layer;
 static Window *s_main_window;
 static Window *s_routine_window;
 
-uint32_t first_delay_ms = 10;
 static int s_current_icon = 0;
 int current_routine = 0;
 int current_routine_index = 0;
@@ -51,7 +48,6 @@ static void deinit() {
     text_layer_destroy(text_layer_bottom);
     text_layer_destroy(text_layer_middle);
 
-    bitmap_layer_destroy(s_bitmap_layer);
     bitmap_layer_destroy(s_bitmap_layer_cat);
     gbitmap_destroy(s_background_bitmap);
     gbitmap_destroy(s_bitmap);
@@ -59,7 +55,6 @@ static void deinit() {
     gbitmap_destroy(s_menu_icons[0]);
     gbitmap_destroy(s_menu_icons[1]);
     gbitmap_destroy(s_menu_icons[2]);
-    gbitmap_sequence_destroy(s_sequence);
 
     menu_layer_destroy(s_menu_layer);
     window_destroy(s_main_window);
@@ -103,16 +98,6 @@ static void create_routine_window() {
     s_bitmap_layer_cat = bitmap_layer_create(GRect(35, 5, 100, 139));
     bitmap_layer_set_compositing_mode(s_bitmap_layer_cat, GCompOpSet);
     bitmap_layer_set_bitmap(s_bitmap_layer_cat, s_bitmap_cat);
-
-    // Add bitmap layer for cat gif (currently doesn't work)
-    s_bitmap_layer = bitmap_layer_create(GRect(5, 5, 48, 48));
-    s_sequence = gbitmap_sequence_create_with_resource(RESOURCE_ID_IMAGE_CAT);
-    // Create blank GBitmap using APNG frame size
-    GSize frame_size = gbitmap_sequence_get_bitmap_size(s_sequence);
-    s_bitmap = gbitmap_create_blank(frame_size, GBitmapFormat8Bit);
-    bitmap_layer_set_compositing_mode(s_bitmap_layer, GCompOpSet);
-    bitmap_layer_set_bitmap(s_bitmap_layer, s_bitmap);
-    layer_add_child(window_get_root_layer(s_routine_window), bitmap_layer_get_layer(s_bitmap_layer));
 }
 
 static void routine_window_click_config_provider(void *context) {
@@ -221,7 +206,6 @@ static void update_text() {
         text_layer_set_text(text_layer_middle, "");
         text_layer_set_text(text_layer_bottom, "Routini meows");
         layer_add_child(window_get_root_layer(s_routine_window), bitmap_layer_get_layer(s_bitmap_layer_cat));
-        app_timer_register(first_delay_ms, timer_handler, NULL);
     } else if (current_routine_index >= len || current_routine_index == -1) {
         current_routine_index = 0;
         layer_remove_from_parent(bitmap_layer_get_layer(s_bitmap_layer_cat));
@@ -231,20 +215,5 @@ static void update_text() {
         printf("setting text to %s", routineInfo.newRoutines[current_routine][current_routine_index]);
         snprintf(progress, 10, "%d/%d", current_routine_index, len - 1);
         text_layer_set_text(text_layer_bottom, progress);
-    }
-}
-
-static void timer_handler(void *context) {
-    // This is for the gif, but it didn't really work
-    uint32_t next_delay;
-
-    // Advance to the next APNG frame, and get the delay for this frame
-    if (gbitmap_sequence_update_bitmap_next_frame(s_sequence, s_bitmap, &next_delay)) {
-        // Set the new frame into the BitmapLayer
-        bitmap_layer_set_bitmap(s_bitmap_layer, s_bitmap);
-        layer_mark_dirty(bitmap_layer_get_layer(s_bitmap_layer));
-
-        // Timer for that frame's delay
-        app_timer_register(next_delay, timer_handler, NULL);
     }
 }

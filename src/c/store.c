@@ -72,7 +72,6 @@ struct RoutineInfo store_get_routines(bool firstRun) {
 
             newRoutines[i][j] = malloc(sizeof(char)*size_of_string);
             persist_read_string(key, newRoutines[i][j], size_of_string);
-            printf("string_value %d", key);
             printf(newRoutines[i][j]);
         }
     }
