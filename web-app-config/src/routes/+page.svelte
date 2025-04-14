@@ -14,7 +14,7 @@
 		routines: Record<string, Routine>;
 	};
 
-	/* 
+	/*
     This page is what is loaded when the pebble app user clicks the setting cog
     for MeowTime in the pebble app.
     When the final "submit" button is clicked, the page is redirected to
@@ -49,13 +49,6 @@
 
 	function sendSettingsToPebble() {
 		const settings: Record<string, any> = userSettings;
-		const simplerDictionary = {};
-		debugger;
-		for (const [routineName, routine] of Object.entries(settings.value.routines)) {
-			console.log('routineName: ' + routineName);
-			console.log('routine tasks: ' + routine.tasks.join(','));
-			simplerDictionary[routineName] = routine.tasks.join(',');
-		}
 
 		// Adapted from: https://developer.rebble.io/developer.pebble.com/guides/user-interfaces/app-configuration-static/index.html
 		// Determine the correct return URL (emulator vs real watch)
@@ -74,8 +67,8 @@
 
 		// Encode and send the data when the page closes
 		console.log('Final data being sent to pebble kit js');
-		console.log(JSON.stringify(simplerDictionary));
-		document.location = return_to + encodeURIComponent(JSON.stringify(simplerDictionary));
+		console.log(JSON.stringify(settings.value.routines));
+		document.location = return_to + encodeURIComponent(JSON.stringify(settings.value.routines));
 	}
 
 	const routineExamples = [
@@ -199,12 +192,14 @@
 	}
 </script>
 
-<div class="w-full text-slate-800 p-8 bg-red-200 font-bold text-center"> Settings feature coming soon! For now please enjoy our exiting routines on the watch for meow. </div>
+<div class="w-full bg-red-200 p-8 text-center font-bold text-slate-800">
+	Settings feature coming soon! For now please enjoy our exiting routines on the watch for meow.
+</div>
 <div class="flex h-svh flex-col gap-2 overflow-scroll p-10 text-center">
-	<h1 class="text-xl pb-2">MeowTime Settings</h1>
+	<h1 class="pb-2 text-xl">MeowTime Settings</h1>
 	<h2 class="text-md pb-1">Your Routines</h2>
 	{#each Object.entries(userSettings.value.routines || {}) as [routineName, routine] (routineName)}
-		<div class="flex items-baseline gap-2 rounded-md border-2 shadow-md p-1">
+		<div class="flex items-baseline gap-2 rounded-md border-2 p-1 shadow-md">
 			<div>
 				{routineName}
 			</div>
