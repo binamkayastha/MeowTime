@@ -5,6 +5,10 @@
 #include <string.h>
 
 void store_init_if_none() {
+    app_message_open(app_message_inbox_size_maximum(), app_message_outbox_size_maximum());
+    app_message_register_inbox_received(inbox_received_handler);
+
+
     if (persist_exists(0)) {
         printf("Store exists!");
         printf("Store value: %" PRIu32 "", persist_read_int(0));
@@ -107,6 +111,27 @@ void deleteStore() {
 void safeDelete(int key) {
     if (persist_exists(key)) {
         persist_delete(key);
+    }
+}
+
+static void inbox_received_handler(DictionaryIterator *iter, void *context) {
+    // Figure out tab stop per language file in vim
+    Tuple *part = dict_find(iter, MESSAGE_KEY_PART);
+    Tuple *key = dict_find(iter, MESSAGE_KEY_KEY);
+    Tuple *value = dict_find(iter, MESSAGE_KEY_VALUE);
+
+    if (strcmp(part->value->cstring, "start") == 0) {
+        printf("start");
+    } else if(strcmp(part->value->cstring, "key_pair") == 0) {
+
+        printf("success message recieved in c with key %" PRIu32 "", key->value->int32);
+        if(value->type == TUPLE_CSTRING) {
+            printf("success message recieved in c with value %s", value->value->cstring);
+        } else if (value -> type == TUPLE_INT) {
+            printf("success message recieved in c with value %" PRIu32"", value->value->int32);
+        }
+    } else if(strcmp(part->value->cstring, "end") == 0) {
+        printf("end");
     }
 }
 

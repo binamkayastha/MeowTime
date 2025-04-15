@@ -27,7 +27,9 @@
       "watchface": false
     },
     "messageKeys": [
-      "dummy"
+      "PART",
+      "KEY",
+      "VALUE"
     ],
     "resources": {
       "media": [
