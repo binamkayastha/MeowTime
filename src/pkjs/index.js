@@ -13,13 +13,33 @@ Pebble.addEventListener("ready", function () {
   console.log("PebbleKit JS ready!");
 });
 
+
+const queue = []
+let inFlight = 0
 function pebbleSend(message) {
+  queue.push(message);
+  if (inFlight >= 10) {
+    // Let the current messages in queue start processing the
+    // next message keeping 10 messages in flight
+    console.log(`Queued message from PKJS ${JSON.stringify(message)}`);
+    return;
+  }
+  sendNextInQueue(message)
+}
+
+function sendNextInQueue() {
+  const message = queue.shift();
   const info = `Message sent from PKJS ${JSON.stringify(message)}`;
   console.log(`Sending message from PKJS ${JSON.stringify(message)}`);
+  console.log(`Increased inFlight to ${++inFlight}`)
   Pebble.sendAppMessage(
     message,
     function () {
-      console.log("Succes " + info);
+      console.log("Success " + info);
+      console.log(`Decreased inFlight to ${--inFlight}`)
+      if (queue) {
+        sendNextInQueue()
+      }
     },
     function (e) {
       console.log("Error " + info);
@@ -46,7 +66,7 @@ Pebble.addEventListener("webviewclosed", function (e) {
       pebbleSend({
         PART: "key_pair",
         KEY: ++pebbleKey,
-        VALUE: tasks.length,
+        VALUE: 1 + tasks.length, // Routine Name + tasks
       });
       pebbleSend({
         PART: "key_pair",

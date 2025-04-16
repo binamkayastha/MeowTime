@@ -5,7 +5,7 @@
 #include <string.h>
 
 void store_init_if_none() {
-    app_message_open(app_message_inbox_size_maximum(), app_message_outbox_size_maximum());
+    app_message_open(app_message_inbox_size_maximum(), 0);
     app_message_register_inbox_received(inbox_received_handler);
 
 
@@ -67,16 +67,21 @@ struct RoutineInfo store_get_routines(bool firstRun) {
 
     numOfRoutines = persist_read_int(key);
     newRoutines = malloc(sizeof(char**) * numOfRoutines);
+    if (newRoutines == NULL) printf("Failed to allocate for newRoutines");
     numOfTasksPerRoutine = malloc(sizeof(int) * numOfRoutines);
+    if (numOfTasksPerRoutine == NULL) printf("Failed to allocate for numOfTasksPerRoutine");
+
 
     for(int i=0; i < numOfRoutines; i++) {
         numOfTasksPerRoutine[i] = persist_read_int(++key);
         newRoutines[i] = malloc(sizeof(char*) * numOfTasksPerRoutine[i]);
+        if (newRoutines[i] == NULL) printf("Failed to allocate for newRoutines[%d]", i);
         printf("Reading next Routine");
 
         for(int j=0; j < numOfTasksPerRoutine[i]; j++) {
             int size_of_string = persist_get_size(++key);
             newRoutines[i][j] = malloc(sizeof(char)*size_of_string);
+            if (newRoutines[i][j] == NULL) printf("Failed to allocate for newRoutines[%d][%d]", i, j);
             persist_read_string(key, newRoutines[i][j], size_of_string);
             printf(newRoutines[i][j]);
         }
@@ -127,11 +132,14 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
         printf("success message recieved in c with key %" PRIu32 "", key->value->int32);
         if(value->type == TUPLE_CSTRING) {
             printf("success message recieved in c with value %s", value->value->cstring);
+            persist_write_string(key->value->int32, value->value->cstring);
         } else if (value -> type == TUPLE_INT) {
             printf("success message recieved in c with value %" PRIu32"", value->value->int32);
+            persist_write_int(key->value->int32, value->value->int32);
         }
     } else if(strcmp(part->value->cstring, "end") == 0) {
         printf("end");
+        store_get_routines(false);
     }
 }
 
