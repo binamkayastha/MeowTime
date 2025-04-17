@@ -7,3 +7,4 @@
 #else
 #define log_debug(...)
 #endif
+#define log_info(...) printf(__VA_ARGS__)

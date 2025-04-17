@@ -2,7 +2,6 @@
 #include "pebble.h"
 #include "store.h"
 #include "utils.h"
-#include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -11,7 +10,6 @@
 
 char progress[100];
 
-// TextLayer *text_layer_title;
 TextLayer *text_layer_bottom;
 TextLayer *text_layer_middle;
 
@@ -67,54 +65,7 @@ static void deinit() {
 
 static void create_and_push_main_window() {
     s_main_window = window_create();
-    window_set_window_handlers(s_main_window, (WindowHandlers){
-                                                  .load = main_window_load,
-                                                  .unload = main_window_unload,
-                                              });
-    window_stack_push(s_main_window, true);
-}
-
-static void create_routine_window() {
-    s_routine_window = window_create();
-    window_set_click_config_provider(s_routine_window, routine_window_click_config_provider);
-
-    // Add middle text layer
-    text_layer_middle = text_layer_create(GRect(0, 20, 144, 200));
-    text_layer_set_text_alignment(text_layer_middle, GTextAlignmentCenter);
-    text_layer_set_overflow_mode(text_layer_middle, GTextOverflowModeWordWrap);
-    text_layer_set_text(text_layer_middle, routineInfo.routineNames[current_routine_index]);
-    // text_layer_set_font(text_layer_middle,
-    // fonts_get_system_font(FONT_KEY_GOTHIC_14));
-    text_layer_set_font(text_layer_middle, fonts_get_system_font(FONT_KEY_GOTHIC_18));
-    layer_add_child(window_get_root_layer(s_routine_window), text_layer_get_layer(text_layer_middle));
-
-    // Add bottom text layer
-    text_layer_bottom = text_layer_create(GRect(0, 140, 144, 400));
-    text_layer_set_text_alignment(text_layer_bottom, GTextAlignmentCenter);
-    text_layer_set_overflow_mode(text_layer_bottom, GTextOverflowModeWordWrap);
-    // text_layer_set_text(text_layer_bottom, routineInfo.routineNames[current_routine_index]);
-    text_layer_set_font(text_layer_bottom, fonts_get_system_font(FONT_KEY_GOTHIC_14));
-    layer_add_child(window_get_root_layer(s_routine_window), text_layer_get_layer(text_layer_bottom));
-
-    // Create bitmap layer for static cat
-    s_bitmap_layer_cat = bitmap_layer_create(GRect(35, 5, 100, 139));
-    bitmap_layer_set_compositing_mode(s_bitmap_layer_cat, GCompOpSet);
-    bitmap_layer_set_bitmap(s_bitmap_layer_cat, s_bitmap_cat);
-}
-
-static void routine_window_click_config_provider(void *context) {
-    log_debug("Click config provider\n"); // \n indicates a newline character
-    ButtonId id = BUTTON_ID_SELECT; // The Select button
-    window_single_click_subscribe(id, select_click_handler);
-}
-
-static void select_click_handler(ClickRecognizerRef recognizer, void *context) {
-    log_debug("Click handler %d\n",
-           current_routine_index); // \n indicates a newline character
-    update_text();
-}
-
-static void main_window_load(Window *window) {
+    
     // Here we load the bitmap assets
     s_menu_icons[0] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_ONE);
     s_menu_icons[1] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_TWO);
@@ -126,36 +77,25 @@ static void main_window_load(Window *window) {
     s_background_bitmap = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_ACTION_BAR_ICON_CHECK);
 
     // Now we prepare to initialize the menu layer
-    Layer *window_layer = window_get_root_layer(window);
+    Layer *window_layer = window_get_root_layer(s_main_window);
     GRect bounds = layer_get_frame(window_layer);
 
     // Create the menu layer
     s_menu_layer = menu_layer_create(bounds);
     menu_layer_set_callbacks(s_menu_layer, NULL,
-                             (MenuLayerCallbacks){
-                                 .get_num_rows = menu_get_num_rows_callback,
-                                 .get_header_height = menu_get_header_height_callback,
-                                 .draw_header = menu_draw_header_callback,
-                                 .draw_row = menu_draw_row_callback,
-                                 .select_click = menu_select_callback,
-                             });
+                                (MenuLayerCallbacks){
+                                    .get_num_rows = menu_get_num_rows_callback,
+                                    .get_header_height = menu_get_header_height_callback,
+                                    .draw_header = menu_draw_header_callback,
+                                    .draw_row = menu_draw_row_callback,
+                                    .select_click = menu_select_callback,
+                                });
 
     // Bind the menu layer's click config provider to the window for interactivity
-    menu_layer_set_click_config_onto_window(s_menu_layer, window);
-
+    menu_layer_set_click_config_onto_window(s_menu_layer, s_main_window);
     layer_add_child(window_layer, menu_layer_get_layer(s_menu_layer));
-}
-
-static void main_window_unload(Window *window) {
-    // Destroy the menu layer
-    // menu_layer_destroy(s_menu_layer);
-    //
-    // // Cleanup the menu icons
-    // for (int i = 0; i < NUM_MENU_ICONS; i++) {
-    //     gbitmap_destroy(s_menu_icons[i]);
-    // }
-    //
-    // gbitmap_destroy(s_background_bitmap);
+    
+    window_stack_push(s_main_window, true);
 }
 
 static uint16_t menu_get_num_rows_callback(MenuLayer *menu_layer, uint16_t section_index, void *data) {
@@ -189,6 +129,43 @@ static void menu_select_callback(MenuLayer *menu_layer, MenuIndex *cell_index, v
         window_stack_push(s_routine_window, true);
     }
 }
+
+static void create_routine_window() {
+    s_routine_window = window_create();
+    window_set_click_config_provider(s_routine_window, routine_window_click_config_provider);
+
+    // Add middle text layer
+    text_layer_middle = text_layer_create(GRect(0, 20, 144, 200));
+    text_layer_set_text_alignment(text_layer_middle, GTextAlignmentCenter);
+    text_layer_set_overflow_mode(text_layer_middle, GTextOverflowModeWordWrap);
+    text_layer_set_text(text_layer_middle, routineInfo.routineNames[current_routine_index]);
+    text_layer_set_font(text_layer_middle, fonts_get_system_font(FONT_KEY_GOTHIC_18));
+    layer_add_child(window_get_root_layer(s_routine_window), text_layer_get_layer(text_layer_middle));
+
+    // Add bottom text layer
+    text_layer_bottom = text_layer_create(GRect(0, 140, 144, 400));
+    text_layer_set_text_alignment(text_layer_bottom, GTextAlignmentCenter);
+    text_layer_set_overflow_mode(text_layer_bottom, GTextOverflowModeWordWrap);
+    text_layer_set_font(text_layer_bottom, fonts_get_system_font(FONT_KEY_GOTHIC_14));
+    layer_add_child(window_get_root_layer(s_routine_window), text_layer_get_layer(text_layer_bottom));
+
+    // Create bitmap layer for static cat
+    s_bitmap_layer_cat = bitmap_layer_create(GRect(35, 5, 100, 139));
+    bitmap_layer_set_compositing_mode(s_bitmap_layer_cat, GCompOpSet);
+    bitmap_layer_set_bitmap(s_bitmap_layer_cat, s_bitmap_cat);
+}
+
+static void routine_window_click_config_provider(void *context) {
+    log_debug("Click config provider\n"); 
+    ButtonId id = BUTTON_ID_SELECT; // The Select button
+    window_single_click_subscribe(id, select_click_handler);
+}
+
+static void select_click_handler(ClickRecognizerRef recognizer, void *context) {
+    log_debug("Click handler %d\n", current_routine_index);
+    update_text();
+}
+
 
 static void update_text() {
     int len = routineInfo.routineTaskCount[current_routine];
