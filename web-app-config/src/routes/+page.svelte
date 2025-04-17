@@ -235,7 +235,7 @@
 				<input
 					type="text"
 					placeholder={`Routine Name ex. ${getRandom(routineExamples)}`}
-					class="input validator"
+					class="input invalid:input-error"
 					required
 					pattern={'.{1,10}'}
 					bind:value={editingRoutineName}
@@ -249,7 +249,7 @@
 							<input
 								type="text "
 								placeholder={`Task Name ex. ${getRandom(taskExamples)}`}
-								class="input validator"
+								class="input invalid:input-error"
 								bind:value={editingRoutine.tasks[index]}
 								required
 								pattern={'.{1,80}'}
@@ -356,9 +356,5 @@
 	.modal-backdrop {
 		/* Make modal backdrop darker so users don't think they can click on the elements behind the modal */
 		background-color: rgba(0, 0, 0, 0.7);
-	}
-	.validator {
-	    /* Override success color to not be green */
-		--color-success: transparent;
 	}
 </style>
