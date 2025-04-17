@@ -17,95 +17,95 @@ void store_init_if_none() {
         log_debug("Store doesn't exist!");
     }
 
-    int numberOfRoutines = 3;
+    int num_of_routines = 3;
     int key = 0;
-    persist_write_int(key, numberOfRoutines);
+    persist_write_int(key, num_of_routines);
 
 
-    char *firstRoutine[] = {"Tutorial", "This is a routine", "Keep pressing right to see the next task!",
+    char *first_routine[] = {"Tutorial", "This is a routine", "Keep pressing right to see the next task!",
                             "You can add your own routines through the app settings in the pebble",
                             "Do your routines and Routini the cat will be pleased."};
-    int numberOfTasks = len(firstRoutine);
-    persist_write_int(++key, numberOfTasks);
-    for (int i = 0; i < numberOfTasks; i++) {
-        log_debug("firstRoutine writing to %d", key);
-        log_debug(firstRoutine[i]);
-        persist_write_string(++key, firstRoutine[i]);
+    int num_of_tasks = len(first_routine);
+    persist_write_int(++key, num_of_tasks);
+    for (int i = 0; i < num_of_tasks; i++) {
+        log_debug("first_routine writing to %d", key);
+        log_debug(first_routine[i]);
+        persist_write_string(++key, first_routine[i]);
     }
 
-    char *secondRoutine[] = {"Morning Routine", "Feed Cat", "Drink Water", "Brush Teeth", "Duo Lingo", "Shower", "Make bed", "Measure weight", "Eat breakfast"};
-    numberOfTasks = len(secondRoutine);
-    persist_write_int(++key, numberOfTasks);
-    for (int i = 0; i < numberOfTasks; i++) {
-        log_debug("secondRoutine writing to %d", key);
-        log_debug(secondRoutine[i]);
-        persist_write_string(++key, secondRoutine[i]);
+    char *second_routine[] = {"Morning Routine", "Feed Cat", "Drink Water", "Brush Teeth", "Duo Lingo", "Shower", "Make bed", "Measure weight", "Eat breakfast"};
+    num_of_tasks = len(second_routine);
+    persist_write_int(++key, num_of_tasks);
+    for (int i = 0; i < num_of_tasks; i++) {
+        log_debug("second_routine writing to %d", key);
+        log_debug(second_routine[i]);
+        persist_write_string(++key, second_routine[i]);
     }
 
-    char *thirdRoutine[] = {"Evening Routine", "Budgeting", "Put away dishes on table", "Brush teeth", "Fill water bottle for the night", "Journal", "Create plan for tomorrow", "Read Stuff", "Pet cat", "Put out work cloths", "Set alarm for tomorrow morning", "Put phone in drawer"};
-    numberOfTasks = len(thirdRoutine);
-    persist_write_int(++key, numberOfTasks);
-    for (int i = 0; i < numberOfTasks; i++) {
-        log_debug("thirdRoutine writing to %d", key);
-        log_debug(thirdRoutine[i]);
-        persist_write_string(++key, thirdRoutine[i]);
+    char *third_routine[] = {"Evening Routine", "Budgeting", "Put away dishes on table", "Brush teeth", "Fill water bottle for the night", "Journal", "Create plan for tomorrow", "Read Stuff", "Pet cat", "Put out work cloths", "Set alarm for tomorrow morning", "Put phone in drawer"};
+    num_of_tasks = len(third_routine);
+    persist_write_int(++key, num_of_tasks);
+    for (int i = 0; i < num_of_tasks; i++) {
+        log_debug("third_routine writing to %d", key);
+        log_debug(third_routine[i]);
+        persist_write_string(++key, third_routine[i]);
     }
 }
 
 void store_deinit() {
     app_message_deregister_callbacks();
-    freeStore();
+    free_store();
 }
 
-struct RoutineInfo routineInfo;
+struct RoutineInfo routines;
 
 struct RoutineInfo store_get_routines(bool firstRun) {
     int key = 0;
 
     if (!firstRun) {
-        freeStore();
+        free_store();
     }
 
-    routineInfo.numOfRoutines = persist_read_int(key);
+    routines.num_of_routines = persist_read_int(key);
     log_debug("routineInfo.numOfRoutines: %d", routineInfo.numOfRoutines);
-    routineInfo.routineTaskCount = malloc(sizeof(int) * routineInfo.numOfRoutines);
-    if (routineInfo.routineTaskCount == NULL) { log_debug("Failed to allocate for routineTaskCount"); }
-    routineInfo.routineStartKeys = malloc(sizeof(int) * routineInfo.numOfRoutines);
-    if (routineInfo.routineStartKeys == NULL) { log_debug("Failed to allocate for routineStartKeys"); }
+    routines.num_of_tasks = malloc(sizeof(int) * routines.num_of_routines);
+    if (routines.num_of_tasks == NULL) { log_debug("Failed to allocate for routineTaskCount"); }
+    routines.start_keys = malloc(sizeof(int) * routines.num_of_routines);
+    if (routines.start_keys == NULL) { log_debug("Failed to allocate for routineStartKeys"); }
     log_debug("key value is %d\n", key);
 
-    for(int i=0; i < routineInfo.numOfRoutines; i++) {
+    for(int i=0; i < routines.num_of_routines; i++) {
         log_debug("in loop key value is %d\n", key);
-        routineInfo.routineTaskCount[i] = persist_read_int(++key);
+        routines.num_of_tasks[i] = persist_read_int(++key);
         log_debug("after getting index key value is %d\n", key);
-        int routineNameIndex = key+1;
-        log_debug("routineNameIndex should be 2 %d\n", routineNameIndex);
-        routineInfo.routineStartKeys[i] = routineNameIndex;
-        key += routineInfo.routineTaskCount[i];
-        persist_read_string(routineNameIndex, routineInfo.routineNames[i], 20);
-        log_debug("Routine name retrieved: %s at key %d\n", routineInfo.routineNames[i], routineNameIndex);
+        int routine_name_index = key+1;
+        log_debug("routine_name_index should be 2 %d\n", routine_name_index);
+        routines.start_keys[i] = routine_name_index;
+        key += routines.num_of_tasks[i];
+        persist_read_string(routine_name_index, routines.names[i], 20);
+        log_debug("Routine name retrieved: %s at key %d\n", routineInfo.routineNames[i], routine_name_index);
     }
-    return routineInfo;
+    return routines;
 }
 
 
-void freeStore() {
-    free(routineInfo.routineTaskCount);
-    free(routineInfo.routineStartKeys);
+void free_store() {
+    free(routines.num_of_tasks);
+    free(routines.start_keys);
 }
 
 void deleteStore() {
     int key = 0;
-    safeDelete(key);
-    safeDelete(++key);
-    for(int i=0; i < routineInfo.numOfRoutines; i++) {
-        for(int j=0; j < routineInfo.routineTaskCount[i]; j++) {
-            safeDelete(++key);
+    safe_delete(key);
+    safe_delete(++key);
+    for(int i=0; i < routines.num_of_routines; i++) {
+        for(int j=0; j < routines.num_of_tasks[i]; j++) {
+            safe_delete(++key);
         }
     }
 }
 
-void safeDelete(int key) {
+void safe_delete(int key) {
     if (persist_exists(key)) {
         persist_delete(key);
     }

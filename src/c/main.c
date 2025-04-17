@@ -34,10 +34,10 @@ int main(void) {
     deinit();
 }
 
-struct RoutineInfo routineInfo;
+struct RoutineInfo routines;
 static void init() {
     store_init_if_none();
-    routineInfo = store_get_routines(true);
+    routines = store_get_routines(true);
 
     create_and_push_main_window();
     create_routine_window();
@@ -99,7 +99,7 @@ static void create_and_push_main_window() {
 }
 
 static uint16_t menu_get_num_rows_callback(MenuLayer *menu_layer, uint16_t section_index, void *data) {
-    return routineInfo.numOfRoutines;
+    return routines.num_of_routines;
 }
 
 static int16_t menu_get_header_height_callback(MenuLayer *menu_layer, uint16_t section_index, void *data) {
@@ -111,15 +111,15 @@ static void menu_draw_header_callback(GContext *ctx, const Layer *cell_layer, ui
 }
 
 static void menu_draw_row_callback(GContext *ctx, const Layer *cell_layer, MenuIndex *cell_index, void *data) {
-    if (cell_index->section == 0 && cell_index->row < routineInfo.numOfRoutines) {
-        menu_cell_basic_draw(ctx, cell_layer, routineInfo.routineNames[cell_index->row], NULL, NULL);
+    if (cell_index->section == 0 && cell_index->row < routines.num_of_routines) {
+        menu_cell_basic_draw(ctx, cell_layer, routines.names[cell_index->row], NULL, NULL);
     }
 }
 
 static void menu_select_callback(MenuLayer *menu_layer, MenuIndex *cell_index, void *data) {
     log_debug("menus eledcted");
     log_debug("%d", cell_index->row);
-    if (cell_index->row < routineInfo.numOfRoutines) {
+    if (cell_index->row < routines.num_of_routines) {
         s_current_icon = (s_current_icon + 1) % NUM_MENU_ICONS;
         // After changing the icon, mark the layer to have it updated
         layer_mark_dirty(menu_layer_get_layer(menu_layer));
@@ -138,7 +138,7 @@ static void create_routine_window() {
     text_layer_middle = text_layer_create(GRect(0, 20, 144, 200));
     text_layer_set_text_alignment(text_layer_middle, GTextAlignmentCenter);
     text_layer_set_overflow_mode(text_layer_middle, GTextOverflowModeWordWrap);
-    text_layer_set_text(text_layer_middle, routineInfo.routineNames[current_routine_index]);
+    text_layer_set_text(text_layer_middle, routines.names[current_routine_index]);
     text_layer_set_font(text_layer_middle, fonts_get_system_font(FONT_KEY_GOTHIC_18));
     layer_add_child(window_get_root_layer(s_routine_window), text_layer_get_layer(text_layer_middle));
 
@@ -168,7 +168,7 @@ static void select_click_handler(ClickRecognizerRef recognizer, void *context) {
 
 
 static void update_text() {
-    int len = routineInfo.routineTaskCount[current_routine];
+    int len = routines.num_of_tasks[current_routine];
     log_debug("sizeof %d\n", len); // \n indicates a newline character
     // A single click has just occured
     current_routine_index++;
@@ -183,7 +183,7 @@ static void update_text() {
         layer_remove_from_parent(bitmap_layer_get_layer(s_bitmap_layer_cat));
         window_stack_pop(true);
     } else {
-        persist_read_string(routineInfo.routineStartKeys[current_routine] + current_routine_index, currentTask, CURRENT_TASK_LENGTH);
+        persist_read_string(routines.start_keys[current_routine] + current_routine_index, currentTask, CURRENT_TASK_LENGTH);
         text_layer_set_text(text_layer_middle, currentTask);
         log_debug("setting text to %s", currentTask);
         snprintf(progress, 10, "%d/%d", current_routine_index, len - 1);
