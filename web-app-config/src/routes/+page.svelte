@@ -40,6 +40,7 @@
 		}
 	);
 
+	let oldRoutineName = $state<string>('');
 	let editingRoutineName = $state<string>('');
 	let editingRoutine = $state<Routine>({
 		// startHour: null,
@@ -192,9 +193,6 @@
 	}
 </script>
 
-<div class="w-full bg-red-200 p-8 text-center font-bold text-slate-800">
-	Settings feature coming soon! For now please enjoy our exiting routines on the watch for meow.
-</div>
 <div class="flex h-svh flex-col gap-2 overflow-scroll p-10 text-center">
 	<h1 class="pb-2 text-xl">MeowTime Settings</h1>
 	<h2 class="text-md pb-1">Your Routines</h2>
@@ -212,6 +210,7 @@
 			<button
 				class="btn btn-primary"
 				onclick={() => {
+				    oldRoutineName = routineName;
 					editingRoutineName = routineName;
 					editingRoutine = routine;
 					new_routine_modal.showModal();
@@ -234,6 +233,7 @@
 	>
 	<div class="flex-1"></div>
 	<button class="btn btn-secondary" onclick={sendSettingsToPebble}>Submit to Pebble</button>
+	<p>Make sure to restart the app to see changes!</p>
 
 	<!-- TODO: Move dialogs to their own components -->
 	<dialog bind:this={new_routine_modal} id="new_routine_modal" class="modal">
@@ -301,6 +301,7 @@
 							alert(errors.join('\nOne more thing. '));
 							return;
 						}
+						userSettings.value.routines[oldRoutineName] = undefined;
 						userSettings.value.routines[editingRoutineName] = editingRoutine;
 						clearEditingRoutine();
 					}}>Save Routine</button
