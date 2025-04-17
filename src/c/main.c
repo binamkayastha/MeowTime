@@ -6,6 +6,7 @@
 #include <string.h>
 
 #define NUM_MENU_ICONS 3
+#define CURRENT_TASK_LENGTH 100
 
 char progress[100];
 
@@ -26,7 +27,7 @@ static Window *s_routine_window;
 static int s_current_icon = 0;
 int current_routine = 0;
 int current_routine_index = 0;
-
+char currentTask[CURRENT_TASK_LENGTH];
 
 int main(void) {
     init();
@@ -60,7 +61,7 @@ static void deinit() {
     window_destroy(s_main_window);
     window_destroy(s_routine_window);
 
-    freeStore();
+    store_deinit();
 }
 
 static void create_and_push_main_window() {
@@ -80,7 +81,7 @@ static void create_routine_window() {
     text_layer_middle = text_layer_create(GRect(0, 20, 144, 200));
     text_layer_set_text_alignment(text_layer_middle, GTextAlignmentCenter);
     text_layer_set_overflow_mode(text_layer_middle, GTextOverflowModeWordWrap);
-    text_layer_set_text(text_layer_middle, routineInfo.newRoutines[current_routine_index][0]);
+    text_layer_set_text(text_layer_middle, routineInfo.routineNames[current_routine_index]);
     // text_layer_set_font(text_layer_middle,
     // fonts_get_system_font(FONT_KEY_GOTHIC_14));
     text_layer_set_font(text_layer_middle, fonts_get_system_font(FONT_KEY_GOTHIC_18));
@@ -90,7 +91,7 @@ static void create_routine_window() {
     text_layer_bottom = text_layer_create(GRect(0, 140, 144, 400));
     text_layer_set_text_alignment(text_layer_bottom, GTextAlignmentCenter);
     text_layer_set_overflow_mode(text_layer_bottom, GTextOverflowModeWordWrap);
-    // text_layer_set_text(text_layer_bottom, routineInfo.newRoutines[current_routine_index][0]);
+    // text_layer_set_text(text_layer_bottom, routineInfo.routineNames[current_routine_index]);
     text_layer_set_font(text_layer_bottom, fonts_get_system_font(FONT_KEY_GOTHIC_14));
     layer_add_child(window_get_root_layer(s_routine_window), text_layer_get_layer(text_layer_bottom));
 
@@ -177,7 +178,7 @@ static void menu_draw_header_callback(GContext *ctx, const Layer *cell_layer, ui
 
 static void menu_draw_row_callback(GContext *ctx, const Layer *cell_layer, MenuIndex *cell_index, void *data) {
     if (cell_index->section == 0 && cell_index->row < routineInfo.numOfRoutines) {
-        menu_cell_basic_draw(ctx, cell_layer, routineInfo.newRoutines[cell_index->row][0], NULL, NULL);
+        menu_cell_basic_draw(ctx, cell_layer, routineInfo.routineNames[cell_index->row], NULL, NULL);
     }
 }
 
@@ -196,7 +197,7 @@ static void menu_select_callback(MenuLayer *menu_layer, MenuIndex *cell_index, v
 }
 
 static void update_text() {
-    int len = routineInfo.numOfTasksPerRoutine[current_routine];
+    int len = routineInfo.routineTaskCount[current_routine];
     printf("sizeof %d\n", len); // \n indicates a newline character
     // A single click has just occured
     current_routine_index++;
@@ -211,8 +212,9 @@ static void update_text() {
         layer_remove_from_parent(bitmap_layer_get_layer(s_bitmap_layer_cat));
         window_stack_pop(true);
     } else {
-        text_layer_set_text(text_layer_middle, routineInfo.newRoutines[current_routine][current_routine_index]);
-        printf("setting text to %s", routineInfo.newRoutines[current_routine][current_routine_index]);
+        persist_read_string(routineInfo.routineStartKeys[current_routine] + current_routine_index, currentTask, CURRENT_TASK_LENGTH);
+        text_layer_set_text(text_layer_middle, currentTask);
+        printf("setting text to %s", currentTask);
         snprintf(progress, 10, "%d/%d", current_routine_index, len - 1);
         text_layer_set_text(text_layer_bottom, progress);
     }

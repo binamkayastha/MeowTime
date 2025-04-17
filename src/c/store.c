@@ -52,10 +52,11 @@ void store_init_if_none() {
     }
 }
 
+void store_deinit() {
+    app_message_deregister_callbacks();
+    freeStore();
+}
 
-int numOfRoutines;
-int *numOfTasksPerRoutine;
-char ***newRoutines;
 struct RoutineInfo routineInfo;
 
 struct RoutineInfo store_get_routines(bool firstRun) {
@@ -65,49 +66,40 @@ struct RoutineInfo store_get_routines(bool firstRun) {
         freeStore();
     }
 
-    numOfRoutines = persist_read_int(key);
-    newRoutines = malloc(sizeof(char**) * numOfRoutines);
-    if (newRoutines == NULL) printf("Failed to allocate for newRoutines");
-    numOfTasksPerRoutine = malloc(sizeof(int) * numOfRoutines);
-    if (numOfTasksPerRoutine == NULL) printf("Failed to allocate for numOfTasksPerRoutine");
+    routineInfo.numOfRoutines = persist_read_int(key);
+    log("routineInfo.numOfRoutines: %d", routineInfo.numOfRoutines);
+    routineInfo.routineTaskCount = malloc(sizeof(int) * routineInfo.numOfRoutines);
+    if (routineInfo.routineTaskCount == NULL) printf("Failed to allocate for routineTaskCount");
+    routineInfo.routineStartKeys = malloc(sizeof(int) * routineInfo.numOfRoutines);
+    if (routineInfo.routineStartKeys == NULL) printf("Failed to allocate for routineStartKeys");
+    log("key value is %d\n", key);
 
-
-    for(int i=0; i < numOfRoutines; i++) {
-        numOfTasksPerRoutine[i] = persist_read_int(++key);
-        newRoutines[i] = malloc(sizeof(char*) * numOfTasksPerRoutine[i]);
-        if (newRoutines[i] == NULL) printf("Failed to allocate for newRoutines[%d]", i);
-        printf("Reading next Routine");
-
-        for(int j=0; j < numOfTasksPerRoutine[i]; j++) {
-            int size_of_string = persist_get_size(++key);
-            newRoutines[i][j] = malloc(sizeof(char)*size_of_string);
-            if (newRoutines[i][j] == NULL) printf("Failed to allocate for newRoutines[%d][%d]", i, j);
-            persist_read_string(key, newRoutines[i][j], size_of_string);
-            printf(newRoutines[i][j]);
-        }
+    for(int i=0; i < routineInfo.numOfRoutines; i++) {
+        log("in loop key value is %d\n", key);
+        routineInfo.routineTaskCount[i] = persist_read_int(++key);
+        log("after getting index key value is %d\n", key);
+        int routineNameIndex = key+1;
+        log("routineNameIndex should be 2 %d\n", routineNameIndex);
+        routineInfo.routineStartKeys[i] = routineNameIndex;
+        key += routineInfo.routineTaskCount[i];
+        persist_read_string(routineNameIndex, routineInfo.routineNames[i], 20);
+        log("Routine name retrieved: %s at key %d\n", routineInfo.routineNames[i], routineNameIndex);
     }
-    routineInfo = (struct RoutineInfo){ numOfRoutines, numOfTasksPerRoutine, newRoutines };
     return routineInfo;
 }
 
 
 void freeStore() {
-    for(int i=0; i < routineInfo.numOfRoutines; i++) {
-        for(int j=0; j < routineInfo.numOfTasksPerRoutine[i]; j++) {
-            free(routineInfo.newRoutines[i][j]);
-        }
-        free(routineInfo.newRoutines[i]);
-    }
-    free(routineInfo.newRoutines);
-    free(routineInfo.numOfTasksPerRoutine);
+    free(routineInfo.routineTaskCount);
+    free(routineInfo.routineStartKeys);
 }
 
 void deleteStore() {
     int key = 0;
     safeDelete(key);
     safeDelete(++key);
-    for(int i=0; i < numOfRoutines; i++) {
-        for(int j=0; j < numOfTasksPerRoutine[i]; j++) {
+    for(int i=0; i < routineInfo.numOfRoutines; i++) {
+        for(int j=0; j < routineInfo.routineTaskCount[i]; j++) {
             safeDelete(++key);
         }
     }

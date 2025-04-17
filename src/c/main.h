@@ -20,4 +20,3 @@ static void menu_select_callback(MenuLayer *menu_layer, MenuIndex *cell_index, v
 
 static void select_click_handler(ClickRecognizerRef recognizer, void *context);
 static void update_text();
-static void timer_handler(void *context);
