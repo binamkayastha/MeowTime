@@ -1,13 +1,7 @@
 <script lang="ts">
 	type Tasks = string;
 	type Routine = {
-		// TODO: Possibly use zod to limit these hour and minute values to 0-23 and 0-59
-		// TODO: Possibly support full scope of `RFC 2445` Make as flexible as google calendar rules
-		// For now make it daily and based on a specific time of day.
-		// These values are passed directly as is to the C code from which the time will be determined
-		// as the local time of the pebble.
-		// startHour: number;
-		// startMinute: number;
+		// Future attributes can go into this object
 		tasks: Array<Tasks>;
 	};
 	type UserSettings = {
@@ -93,18 +87,18 @@
 		return arr[Math.floor(Math.random() * arr.length)];
 	}
 
-	let new_routine_modal: HTMLDialogElement;
-	let new_routine_from_template_modal: HTMLDialogElement;
+	let newRoutineModal: HTMLDialogElement;
+	let newRoutineFromTemplateModal: HTMLDialogElement;
 	function clearEditingRoutine() {
 		editingRoutineName = '';
 		// editingRoutine.startHour = null;
 		// editingRoutine.startMinute = null;
 		editingRoutine.tasks = [];
-		new_routine_modal.close();
-		new_routine_from_template_modal.close();
+		newRoutineModal.close();
+		newRoutineFromTemplateModal.close();
 	}
 
-	const template_routines = {
+	const templateRoutines = {
 		'Morning Routine': [
 			'Feed Cat',
 			'Drink Water',
@@ -169,27 +163,24 @@
 			'Open catnip drawer and leave it open',
 			'Go to work'
 		],
-		'Huh?': [
-			'What?',
-			'Huh?',
-			'Oh no',
-			'It seem like my cat Routini has taken over the app :o',
-			"Don't worry, we'll get this sorted out post hackathon with real templates",
+		Terces: [
+			'Congrats!',
+			"You've found the secret message!",
 			'Thanks for trying out my app!',
-			"I'm very tired, it's 5:03 AM and I've been up all night making cat checklists",
-			"I don't even have a cat. I don't even know if they can eat poutine.",
-			'Thanks for reading so far!',
 			'I hope you like it!',
 			'And if you have suggestions, send them my way :D',
-			'Email: binamkayastha@gmail.com'
+			'Email: binamkayastha@gmail.com',
+			'You can also join us on the Rebble Discord server!',
+			'You can find us on the MeowTime Thread in projects section.',
+			'Happy Routining!'
 		]
 	};
 
 	let templateSelect;
-	function addRoutine(name: keyof template_routines) {
-		userSettings.value.routines[name] = { tasks: template_routines[name] };
+	function addRoutine(name: keyof typeof templateRoutines) {
+		userSettings.value.routines[name] = { tasks: templateRoutines[name] };
 		templateSelect.selectedIndex = 0;
-		new_routine_from_template_modal.close();
+		newRoutineFromTemplateModal.close();
 	}
 </script>
 
@@ -210,10 +201,10 @@
 			<button
 				class="btn btn-primary"
 				onclick={() => {
-				    oldRoutineName = routineName;
+					oldRoutineName = routineName;
 					editingRoutineName = routineName;
 					editingRoutine = routine;
-					new_routine_modal.showModal();
+					newRoutineModal.showModal();
 				}}>Edit</button
 			>
 			<button
@@ -225,10 +216,9 @@
 			>
 		</div>
 	{/each}
-	<button class="btn btn-primary" onclick={() => new_routine_modal.showModal()}
-		>Create Routine</button
+	<button class="btn btn-primary" onclick={() => newRoutineModal.showModal()}>Create Routine</button
 	>
-	<button class="btn btn-primary" onclick={() => new_routine_from_template_modal.showModal()}
+	<button class="btn btn-primary" onclick={() => newRoutineFromTemplateModal.showModal()}
 		>Create Routine From Template</button
 	>
 	<div class="flex-1"></div>
@@ -236,26 +226,37 @@
 	<p>Make sure to restart the app to see changes!</p>
 
 	<!-- TODO: Move dialogs to their own components -->
-	<dialog bind:this={new_routine_modal} id="new_routine_modal" class="modal">
+	<dialog bind:this={newRoutineModal} id="new_routine_modal" class="modal">
 		<div class="modal-box">
 			<h3 class="pb-5 text-lg font-bold">Add a new routine!</h3>
 			<div class="flex flex-col gap-2">
 				<h1 class="pt-5 text-lg">Routine Name:</h1>
+				<div class="flex flex-col w-full">
 				<input
 					type="text"
 					placeholder={`Routine Name ex. ${getRandom(routineExamples)}`}
-					class="input"
+					class="input validator"
+					required
+					pattern={'.{1,10}'}
 					bind:value={editingRoutineName}
 				/>
+				<div class="validator-hint hidden">Routine name must be between 1 and 10 characters</div>
+				</div>
 				<h1 class="pt-5 text-lg">Add Tasks to Routine</h1>
 				{#each editingRoutine.tasks as task, index}
 					<div class="flex gap-2">
-						<input
-							type="text "
-							placeholder={`Task Name ex. ${getRandom(taskExamples)}`}
-							class="input"
-							bind:value={editingRoutine.tasks[index]}
-						/>
+						<div class="flex flex-col w-full">
+							<input
+								type="text "
+								placeholder={`Task Name ex. ${getRandom(taskExamples)}`}
+								class="input validator"
+								bind:value={editingRoutine.tasks[index]}
+								required
+								pattern={'.{1,80}'}
+								title=""
+							/>
+							<div class="validator-hint hidden">Task name must be between 1 and 80 characters</div>
+						</div>
 						<button
 							class="btn btn-primary"
 							onclick={() => {
@@ -317,7 +318,7 @@
 		</div>
 	</dialog>
 
-	<dialog bind:this={new_routine_from_template_modal} id="new_routine_modal" class="modal">
+	<dialog bind:this={newRoutineFromTemplateModal} id="new_routine_modal" class="modal">
 		<div class="modal-box">
 			<h3 class="pb-5 text-lg font-bold">
 				Add a new routine from our super duper uber useful templates!
@@ -329,12 +330,9 @@
 					onchange={(e) => addRoutine(e.target.value)}
 				>
 					<option disabled selected>Pick a routine</option>
-					<option>Morning Routine</option>
-					<option>Evening Routine</option>
-					<option>Lunchtime Poutine</option>
-					<option>Cat Yoga</option>
-					<option>Feed Cat</option>
-					<option>Huh?</option>
+					{#each Object.keys(templateRoutines) as name}
+						<option>{name}</option>
+					{/each}
 				</select>
 				<form method="dialog">
 					<button class="btn btn-sm btn-circle btn-ghost absolute top-2 right-2">✕</button>
@@ -358,5 +356,9 @@
 	.modal-backdrop {
 		/* Make modal backdrop darker so users don't think they can click on the elements behind the modal */
 		background-color: rgba(0, 0, 0, 0.7);
+	}
+	.validator {
+	    /* Override success color to not be green */
+		--color-success: transparent;
 	}
 </style>
