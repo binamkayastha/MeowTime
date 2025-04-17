@@ -1,6 +1,7 @@
 #include "main.h"
 #include "pebble.h"
 #include "store.h"
+#include "utils.h"
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
@@ -102,20 +103,13 @@ static void create_routine_window() {
 }
 
 static void routine_window_click_config_provider(void *context) {
-    printf("Click config provider\n"); // \n indicates a newline character
-    // https://developer.rebble.io/developer.pebble.com/guides/events-and-services/buttons/index.html
-    // Subcribe to button click events here
+    log_debug("Click config provider\n"); // \n indicates a newline character
     ButtonId id = BUTTON_ID_SELECT; // The Select button
-    // ButtonId id = BUTTON_ID_DOWN;       // The Down button
-    //     uint16_t repeat_interval_ms = 200;  // Fire every 200 ms while held
-    //     down
-    // window_single_repeating_click_subscribe(id, repeat_interval_ms,
-    // down_repeating_click_handler);
     window_single_click_subscribe(id, select_click_handler);
 }
 
 static void select_click_handler(ClickRecognizerRef recognizer, void *context) {
-    printf("Click handler %d\n",
+    log_debug("Click handler %d\n",
            current_routine_index); // \n indicates a newline character
     update_text();
 }
@@ -183,8 +177,8 @@ static void menu_draw_row_callback(GContext *ctx, const Layer *cell_layer, MenuI
 }
 
 static void menu_select_callback(MenuLayer *menu_layer, MenuIndex *cell_index, void *data) {
-    printf("menus eledcted");
-    printf("%d", cell_index->row);
+    log_debug("menus eledcted");
+    log_debug("%d", cell_index->row);
     if (cell_index->row < routineInfo.numOfRoutines) {
         s_current_icon = (s_current_icon + 1) % NUM_MENU_ICONS;
         // After changing the icon, mark the layer to have it updated
@@ -198,11 +192,11 @@ static void menu_select_callback(MenuLayer *menu_layer, MenuIndex *cell_index, v
 
 static void update_text() {
     int len = routineInfo.routineTaskCount[current_routine];
-    printf("sizeof %d\n", len); // \n indicates a newline character
+    log_debug("sizeof %d\n", len); // \n indicates a newline character
     // A single click has just occured
     current_routine_index++;
     vibes_short_pulse();
-    printf("Right before text change.");
+    log_debug("Right before text change.");
     if (current_routine_index == len) {
         text_layer_set_text(text_layer_middle, "");
         text_layer_set_text(text_layer_bottom, "Routini meows");
@@ -214,7 +208,7 @@ static void update_text() {
     } else {
         persist_read_string(routineInfo.routineStartKeys[current_routine] + current_routine_index, currentTask, CURRENT_TASK_LENGTH);
         text_layer_set_text(text_layer_middle, currentTask);
-        printf("setting text to %s", currentTask);
+        log_debug("setting text to %s", currentTask);
         snprintf(progress, 10, "%d/%d", current_routine_index, len - 1);
         text_layer_set_text(text_layer_bottom, progress);
     }

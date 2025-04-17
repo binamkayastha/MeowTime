@@ -10,11 +10,11 @@ void store_init_if_none() {
 
 
     if (persist_exists(0)) {
-        printf("Store exists!");
-        printf("Store value: %" PRIu32 "", persist_read_int(0));
+        log_debug("Store exists!");
+        log_debug("Store value: %" PRIu32 "", persist_read_int(0));
         return;
     } else {
-        printf("Store doesn't exist!");
+        log_debug("Store doesn't exist!");
     }
 
     int numberOfRoutines = 3;
@@ -28,8 +28,8 @@ void store_init_if_none() {
     int numberOfTasks = len(firstRoutine);
     persist_write_int(++key, numberOfTasks);
     for (int i = 0; i < numberOfTasks; i++) {
-        printf("firstRoutine writing to %d", key);
-        printf(firstRoutine[i]);
+        log_debug("firstRoutine writing to %d", key);
+        log_debug(firstRoutine[i]);
         persist_write_string(++key, firstRoutine[i]);
     }
 
@@ -37,8 +37,8 @@ void store_init_if_none() {
     numberOfTasks = len(secondRoutine);
     persist_write_int(++key, numberOfTasks);
     for (int i = 0; i < numberOfTasks; i++) {
-        printf("secondRoutine writing to %d", key);
-        printf(secondRoutine[i]);
+        log_debug("secondRoutine writing to %d", key);
+        log_debug(secondRoutine[i]);
         persist_write_string(++key, secondRoutine[i]);
     }
 
@@ -46,8 +46,8 @@ void store_init_if_none() {
     numberOfTasks = len(thirdRoutine);
     persist_write_int(++key, numberOfTasks);
     for (int i = 0; i < numberOfTasks; i++) {
-        printf("thirdRoutine writing to %d", key);
-        printf(thirdRoutine[i]);
+        log_debug("thirdRoutine writing to %d", key);
+        log_debug(thirdRoutine[i]);
         persist_write_string(++key, thirdRoutine[i]);
     }
 }
@@ -67,23 +67,23 @@ struct RoutineInfo store_get_routines(bool firstRun) {
     }
 
     routineInfo.numOfRoutines = persist_read_int(key);
-    log("routineInfo.numOfRoutines: %d", routineInfo.numOfRoutines);
+    log_debug("routineInfo.numOfRoutines: %d", routineInfo.numOfRoutines);
     routineInfo.routineTaskCount = malloc(sizeof(int) * routineInfo.numOfRoutines);
-    if (routineInfo.routineTaskCount == NULL) printf("Failed to allocate for routineTaskCount");
+    if (routineInfo.routineTaskCount == NULL) { log_debug("Failed to allocate for routineTaskCount"); }
     routineInfo.routineStartKeys = malloc(sizeof(int) * routineInfo.numOfRoutines);
-    if (routineInfo.routineStartKeys == NULL) printf("Failed to allocate for routineStartKeys");
-    log("key value is %d\n", key);
+    if (routineInfo.routineStartKeys == NULL) { log_debug("Failed to allocate for routineStartKeys"); }
+    log_debug("key value is %d\n", key);
 
     for(int i=0; i < routineInfo.numOfRoutines; i++) {
-        log("in loop key value is %d\n", key);
+        log_debug("in loop key value is %d\n", key);
         routineInfo.routineTaskCount[i] = persist_read_int(++key);
-        log("after getting index key value is %d\n", key);
+        log_debug("after getting index key value is %d\n", key);
         int routineNameIndex = key+1;
-        log("routineNameIndex should be 2 %d\n", routineNameIndex);
+        log_debug("routineNameIndex should be 2 %d\n", routineNameIndex);
         routineInfo.routineStartKeys[i] = routineNameIndex;
         key += routineInfo.routineTaskCount[i];
         persist_read_string(routineNameIndex, routineInfo.routineNames[i], 20);
-        log("Routine name retrieved: %s at key %d\n", routineInfo.routineNames[i], routineNameIndex);
+        log_debug("Routine name retrieved: %s at key %d\n", routineInfo.routineNames[i], routineNameIndex);
     }
     return routineInfo;
 }
@@ -118,20 +118,19 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
     Tuple *value = dict_find(iter, MESSAGE_KEY_VALUE);
 
     if (strcmp(part->value->cstring, "start") == 0) {
-        printf("start");
+        log_debug("start");
     } else if(strcmp(part->value->cstring, "key_pair") == 0) {
 
-        printf("success message recieved in c with key %" PRIu32 "", key->value->int32);
+        log_debug("success message recieved in c with key %" PRIu32 "", key->value->int32);
         if(value->type == TUPLE_CSTRING) {
-            printf("success message recieved in c with value %s", value->value->cstring);
+            log_debug("success message recieved in c with value %s", value->value->cstring);
             persist_write_string(key->value->int32, value->value->cstring);
         } else if (value -> type == TUPLE_INT) {
-            printf("success message recieved in c with value %" PRIu32"", value->value->int32);
+            log_debug("success message recieved in c with value %" PRIu32"", value->value->int32);
             persist_write_int(key->value->int32, value->value->int32);
         }
     } else if(strcmp(part->value->cstring, "end") == 0) {
-        printf("end");
+        log_debug("end");
         store_get_routines(false);
     }
 }
-
