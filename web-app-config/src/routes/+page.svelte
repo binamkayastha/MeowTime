@@ -17,6 +17,7 @@
     close and the information encoded in the URI to be sent to PebbleJS Kit
     (which is found in src/js/index.js).
   */
+	const ROUTINE_LIMIT = 10;
 
 	// TODO: figure out why there is lag in getting local storage, and show loading
 	const userSettings = new LocalStorage<UserSettings>(
@@ -175,6 +176,8 @@
 		templateSelect.selectedIndex = 0;
 		newRoutineFromTemplateModal.close();
 	}
+	
+	const routinesLength= $derived(Object.keys(userSettings.value.routines).length)
 </script>
 
 <div class="flex h-svh flex-col gap-2 overflow-scroll p-10 text-center">
@@ -212,14 +215,14 @@
 	<button
 		class="btn btn-primary"
 		onclick={() =>
-			userSettings.value.routines.length > 10
+			routinesLength >= ROUTINE_LIMIT
 				? alert("Sorry you can't create more than 10 routines")
 				: newRoutineModal.showModal()}>Create Routine</button
 	>
 	<button
 		class="btn btn-primary"
 		onclick={() =>
-			userSettings.value.routines.length > 10
+			routinesLength >= ROUTINE_LIMIT
 				? alert("Sorry you can't create more than 10 routines")
 				: newRoutineFromTemplateModal.showModal()}>Create Routine From Template</button
 	>
