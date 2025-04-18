@@ -34,7 +34,7 @@ void store_init_if_none() {
         persist_write_string(++key, first_routine[i]);
     }
 
-    char *second_routine[] = {"Morning Routine", "Feed Cat", "Drink Water", "Brush Teeth", "Duo Lingo", "Shower", "Make bed", "Measure weight", "Eat breakfast"};
+    char *second_routine[] = {"Morning", "Feed Cat", "Drink Water", "Brush Teeth", "Duo Lingo", "Shower", "Make bed", "Measure weight", "Eat breakfast"};
     num_of_tasks = len(second_routine);
     persist_write_int(++key, num_of_tasks);
     for (int i = 0; i < num_of_tasks; i++) {
@@ -43,7 +43,7 @@ void store_init_if_none() {
         persist_write_string(++key, second_routine[i]);
     }
 
-    char *third_routine[] = {"Evening Routine", "Budgeting", "Put away dishes on table", "Brush teeth", "Fill water bottle for the night", "Journal", "Create plan for tomorrow", "Read Stuff", "Pet cat", "Put out work cloths", "Set alarm for tomorrow morning", "Put phone in drawer"};
+    char *third_routine[] = {"Evening", "Budgeting", "Put away dishes on table", "Brush teeth", "Fill water bottle for the night", "Journal", "Create plan for tomorrow", "Read Stuff", "Pet cat", "Put out work cloths", "Set alarm for tomorrow morning", "Put phone in drawer"};
     num_of_tasks = len(third_routine);
     persist_write_int(++key, num_of_tasks);
     for (int i = 0; i < num_of_tasks; i++) {
