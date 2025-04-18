@@ -4,7 +4,7 @@ struct RoutineInfo {
   int *num_of_tasks;
   // The store keys for each routine where the routine starts
   int *start_keys;
-  char names[20][15];
+  char names[12][12];
 };
 
 void store_init_if_none();
