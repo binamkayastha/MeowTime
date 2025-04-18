@@ -1,6 +1,7 @@
 #include "main.h"
 #include "pebble.h"
 #include "store.h"
+#include <stdarg.h>
 #include "utils.h"
 #include <stdio.h>
 #include <string.h>
