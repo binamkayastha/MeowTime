@@ -18,6 +18,8 @@
     (which is found in src/js/index.js).
   */
 	const ROUTINE_LIMIT = 10;
+	const ROUTINE_CHAR_LIMIT = 10;
+	const TASK_CHAR_LIMIT = 80;
 
 	// TODO: figure out why there is lag in getting local storage, and show loading
 	const userSettings = new LocalStorage<UserSettings>(
@@ -242,10 +244,10 @@
 						placeholder={`Routine Name ex. ${getRandom(routineExamples)}`}
 						class="input invalid:validator"
 						required
-						pattern={'.{1,10}'}
+						pattern={`.{1,${ROUTINE_CHAR_LIMIT}}`}
 						bind:value={editingRoutineName}
 					/>
-					<div class="validator-hint hidden">Routine name must be between 1 and 10 characters</div>
+					<div class="validator-hint hidden">Routine name must be between 1 and {ROUTINE_CHAR_LIMIT} characters</div>
 				</div>
 				<h1 class="pt-5 text-lg">Add Tasks to Routine</h1>
 				{#each editingRoutine.tasks as task, index}
@@ -257,10 +259,10 @@
 								class="input invalid:validator"
 								bind:value={editingRoutine.tasks[index]}
 								required
-								pattern={'.{1,80}'}
+								pattern={`.{1,${TASK_CHAR_LIMIT}}`}
 								title=""
 							/>
-							<div class="validator-hint hidden">Task name must be between 1 and 80 characters</div>
+							<div class="validator-hint hidden">Task name must be between 1 and {TASK_CHAR_LIMIT} characters</div>
 						</div>
 						<button
 							class="btn btn-primary"
@@ -291,16 +293,24 @@
 
 						// TODO: like visually update the form for the error at somepoint
 						if (!editingRoutineName) {
-							errors.push('You forgot to add the routine name. Routines need names bubba.');
+							errors.push('You forgot to add the routine name. Routines need names bruv.');
+						}
+						if (editingRoutineName.length > ROUTINE_CHAR_LIMIT) {
+							errors.push("Your routine name is too long, it won't fit on the screen.");
 						}
 						if (editingRoutine.tasks?.length === 0) {
 							errors.push(
 								"Routine needs at least one task! Don't tell me you're procrastinating on your routines already!"
 							);
 						}
-						if (editingRoutine.tasks?.some((routine) => !routine)) {
+						if (editingRoutine.tasks?.some((task) => !task)) {
 							errors.push(
-								'One of your routine tasks is empty. Doing nothing is not a task - unfortunately.'
+								'At least one of your routine tasks is empty. Doing nothing is not a task - unfortunately.'
+							);
+						}
+						if (editingRoutine.tasks?.some((task) => task.length > TASK_CHAR_LIMIT)) {
+							errors.push(
+								'At least one of your routine tasks is too long.'
 							);
 						}
 						if (errors.length > 0) {
