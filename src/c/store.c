@@ -101,7 +101,7 @@ void free_store() {
     free(routines.start_keys);
 }
 
-void deleteStore() {
+void delete_store() {
     int key = 0;
     safe_delete(key);
     safe_delete(++key);
