@@ -66,13 +66,7 @@
 		document.location = return_to + encodeURIComponent(JSON.stringify(settings.value.routines));
 	}
 
-	const routineExamples = [
-		'Morning',
-		'Brew Tea',
-		'Clean Room',
-		'Evening',
-		'Cook food'
-	];
+	const routineExamples = ['Morning', 'Brew Tea', 'Clean Room', 'Evening', 'Cook food'];
 	const taskExamples = [
 		'Feed Routini',
 		'Do a dance',
@@ -99,7 +93,7 @@
 	}
 
 	const templateRoutines = {
-		'Morning': [
+		Morning: [
 			'Feed Cat',
 			'Drink Water',
 			'Brush Teeth',
@@ -109,7 +103,7 @@
 			'Measure weight',
 			'Eat breakfast'
 		],
-		'Evening': [
+		Evening: [
 			'Budgeting',
 			'Put away dishes on table',
 			'Brush teeth',
@@ -122,7 +116,7 @@
 			'Set alarm for tomorrow morning',
 			'Put phone in drawer'
 		],
-		'Poutine': [
+		Poutine: [
 			'Soruce: seasonsandsuppers.ca/authentic-canadian-poutine-recipe/',
 			'Gather the following ingredients',
 			'3 Tbsp cornstarch',
@@ -216,10 +210,19 @@
 			>
 		</div>
 	{/each}
-	<button class="btn btn-primary" onclick={() => newRoutineModal.showModal()}>Create Routine</button
+	<button
+		class="btn btn-primary"
+		onclick={() =>
+			userSettings.value.routines.length > 10
+				? alert("Sorry you can't create more than 10 routines")
+				: newRoutineModal.showModal()}>Create Routine</button
 	>
-	<button class="btn btn-primary" onclick={() => newRoutineFromTemplateModal.showModal()}
-		>Create Routine From Template</button
+	<button
+		class="btn btn-primary"
+		onclick={() =>
+			userSettings.value.routines.length > 10
+				? alert("Sorry you can't create more than 10 routines")
+				: newRoutineFromTemplateModal.showModal()}>Create Routine From Template</button
 	>
 	<div class="flex-1"></div>
 	<button class="btn btn-secondary" onclick={sendSettingsToPebble}>Submit to Pebble</button>
@@ -231,25 +234,25 @@
 			<h3 class="pb-5 text-lg font-bold">Add a new routine!</h3>
 			<div class="flex flex-col gap-2">
 				<h1 class="pt-5 text-lg">Routine Name:</h1>
-				<div class="flex flex-col w-full">
-				<input
-					type="text"
-					placeholder={`Routine Name ex. ${getRandom(routineExamples)}`}
-					class="input invalid:input-error"
-					required
-					pattern={'.{1,10}'}
-					bind:value={editingRoutineName}
-				/>
-				<div class="validator-hint hidden">Routine name must be between 1 and 10 characters</div>
+				<div class="flex w-full flex-col">
+					<input
+						type="text"
+						placeholder={`Routine Name ex. ${getRandom(routineExamples)}`}
+						class="input invalid:validator"
+						required
+						pattern={'.{1,10}'}
+						bind:value={editingRoutineName}
+					/>
+					<div class="validator-hint hidden">Routine name must be between 1 and 10 characters</div>
 				</div>
 				<h1 class="pt-5 text-lg">Add Tasks to Routine</h1>
 				{#each editingRoutine.tasks as task, index}
 					<div class="flex gap-2">
-						<div class="flex flex-col w-full">
+						<div class="flex w-full flex-col">
 							<input
 								type="text "
 								placeholder={`Task Name ex. ${getRandom(taskExamples)}`}
-								class="input invalid:input-error"
+								class="input invalid:validator"
 								bind:value={editingRoutine.tasks[index]}
 								required
 								pattern={'.{1,80}'}
