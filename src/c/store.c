@@ -54,7 +54,7 @@ void store_init_if_none() {
 }
 
 void store_deinit() {
-    app_message_deregister_callbacks();
+    // app_message_deregister_callbacks();
     free_store();
 }
 
