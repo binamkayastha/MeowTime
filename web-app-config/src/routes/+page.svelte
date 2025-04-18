@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { LocalStorage } from '$lib/stores/localStorage.svelte';
 	type Tasks = string;
 	type Routine = {
 		// Future attributes can go into this object
@@ -16,8 +17,6 @@
     close and the information encoded in the URI to be sent to PebbleJS Kit
     (which is found in src/js/index.js).
   */
-
-	import { LocalStorage } from '$lib/stores/localStorage.svelte';
 
 	// TODO: figure out why there is lag in getting local storage, and show loading
 	const userSettings = new LocalStorage<UserSettings>(
