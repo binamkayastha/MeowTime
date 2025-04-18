@@ -60,7 +60,14 @@ static void deinit() {
 
 static void create_and_push_main_window() {
     s_main_window = window_create();
+    window_set_window_handlers(s_main_window, (WindowHandlers){
+                                                  .load = main_window_load,
+                                                  .unload = main_window_unload,
+                                              });
+    window_stack_push(s_main_window, true);
+}
     
+static void main_window_load(Window *window) {
     // Here we load the bitmap assets
 
     s_bitmap_cat = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_THREE);
@@ -68,7 +75,7 @@ static void create_and_push_main_window() {
     // And also load the background
 
     // Now we prepare to initialize the menu layer
-    Layer *window_layer = window_get_root_layer(s_main_window);
+    Layer *window_layer = window_get_root_layer(window);
     GRect bounds = layer_get_frame(window_layer);
 
     // Create the menu layer
@@ -83,12 +90,12 @@ static void create_and_push_main_window() {
                                 });
 
     // Bind the menu layer's click config provider to the window for interactivity
-    menu_layer_set_click_config_onto_window(s_menu_layer, s_main_window);
+    menu_layer_set_click_config_onto_window(s_menu_layer, window);
     layer_add_child(window_layer, menu_layer_get_layer(s_menu_layer));
-    
-    window_stack_push(s_main_window, true);
 }
 
+static void main_window_unload(Window *window) {
+}
 static uint16_t menu_get_num_rows_callback(MenuLayer *menu_layer, uint16_t section_index, void *data) {
     return routines.num_of_routines;
 }
