@@ -6,6 +6,8 @@
 #include <string.h>
 
 void store_init_if_none() {
+    log_debug("Heap bytes free: %d", heap_bytes_free());
+    
     app_message_open(app_message_inbox_size_maximum(), 0);
     app_message_register_inbox_received(inbox_received_handler);
 
@@ -51,6 +53,8 @@ void store_init_if_none() {
         log_debug(third_routine[i]);
         persist_write_string(++key, third_routine[i]);
     }
+    log_debug("After writing stores Heap bytes free: %d", heap_bytes_free());
+    
 }
 
 void store_deinit() {
@@ -68,7 +72,7 @@ struct RoutineInfo store_get_routines(bool firstRun) {
     }
 
     routines.num_of_routines = persist_read_int(key);
-    log_debug("routineInfo.numOfRoutines: %d", routineInfo.numOfRoutines);
+    log_debug("routineInfo.num_of_routines: %d", routines.num_of_routines);
     routines.num_of_tasks = malloc(sizeof(int) * routines.num_of_routines);
     if (routines.num_of_tasks == NULL) { log_debug("Failed to allocate for routineTaskCount"); }
     routines.start_keys = malloc(sizeof(int) * routines.num_of_routines);
@@ -84,8 +88,10 @@ struct RoutineInfo store_get_routines(bool firstRun) {
         routines.start_keys[i] = routine_name_index;
         key += routines.num_of_tasks[i];
         persist_read_string(routine_name_index, routines.names[i], 20);
-        log_debug("Routine name retrieved: %s at key %d\n", routineInfo.routineNames[i], routine_name_index);
+        log_debug("Routine name retrieved: %s at key %d\n", routines.names[i], routine_name_index);
+        log_debug("After retrieving Heap bytes free: %d", heap_bytes_free());
     }
+    log_debug("After retrieving ALL Heap bytes free: %d", heap_bytes_free());
     return routines;
 }
 
@@ -113,6 +119,7 @@ void safe_delete(int key) {
 }
 
 static void inbox_received_handler(DictionaryIterator *iter, void *context) {
+    log_debug("inbox recieved hanlder");
     // Figure out tab stop per language file in vim
     Tuple *part = dict_find(iter, MESSAGE_KEY_PART);
     Tuple *key = dict_find(iter, MESSAGE_KEY_KEY);

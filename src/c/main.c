@@ -96,25 +96,32 @@ static void main_window_load(Window *window) {
 
 static void main_window_unload(Window *window) {
 }
+
 static uint16_t menu_get_num_rows_callback(MenuLayer *menu_layer, uint16_t section_index, void *data) {
+    log_debug("menu_get_num_rows_callback");
     return routines.num_of_routines;
 }
 
 static int16_t menu_get_header_height_callback(MenuLayer *menu_layer, uint16_t section_index, void *data) {
+    log_debug("menu_get_header_height_callback");
     return MENU_CELL_BASIC_HEADER_HEIGHT;
 }
 
 static void menu_draw_header_callback(GContext *ctx, const Layer *cell_layer, uint16_t section_index, void *data) {
+    log_debug("menu_draw_header_callback");
     menu_cell_basic_header_draw(ctx, cell_layer, "           Meow Time");
 }
 
 static void menu_draw_row_callback(GContext *ctx, const Layer *cell_layer, MenuIndex *cell_index, void *data) {
+    log_debug("menu_draw_row_callback");
     if (cell_index->section == 0 && cell_index->row < routines.num_of_routines) {
+        log_debug("drawing routine %s", routines.names[cell_index->row]);
         menu_cell_basic_draw(ctx, cell_layer, routines.names[cell_index->row], NULL, NULL);
     }
 }
 
 static void menu_select_callback(MenuLayer *menu_layer, MenuIndex *cell_index, void *data) {
+    log_debug("menu_select_callback");
     log_debug("menus eledcted");
     log_debug("%d", cell_index->row);
     if (cell_index->row < routines.num_of_routines) {
@@ -129,6 +136,7 @@ static void menu_select_callback(MenuLayer *menu_layer, MenuIndex *cell_index, v
 }
 
 static void create_routine_window() {
+    log_debug("create_routine_window");
     s_routine_window = window_create();
     window_set_click_config_provider(s_routine_window, routine_window_click_config_provider);
 
