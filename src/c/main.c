@@ -15,10 +15,8 @@ TextLayer *text_layer_bottom;
 TextLayer *text_layer_middle;
 
 static BitmapLayer *s_bitmap_layer_cat;
-static GBitmap *s_background_bitmap;
 static GBitmap *s_bitmap;
 static GBitmap *s_bitmap_cat;
-static GBitmap *s_menu_icons[NUM_MENU_ICONS];
 
 static MenuLayer *s_menu_layer;
 static Window *s_main_window;
@@ -50,12 +48,8 @@ static void deinit() {
     text_layer_destroy(text_layer_middle);
 
     bitmap_layer_destroy(s_bitmap_layer_cat);
-    gbitmap_destroy(s_background_bitmap);
     gbitmap_destroy(s_bitmap);
     gbitmap_destroy(s_bitmap_cat);
-    gbitmap_destroy(s_menu_icons[0]);
-    gbitmap_destroy(s_menu_icons[1]);
-    gbitmap_destroy(s_menu_icons[2]);
 
     menu_layer_destroy(s_menu_layer);
     window_destroy(s_main_window);
@@ -68,14 +62,10 @@ static void create_and_push_main_window() {
     s_main_window = window_create();
     
     // Here we load the bitmap assets
-    s_menu_icons[0] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_ONE);
-    s_menu_icons[1] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_TWO);
-    s_menu_icons[2] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_THREE);
 
     s_bitmap_cat = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_THREE);
 
     // And also load the background
-    s_background_bitmap = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_ACTION_BAR_ICON_CHECK);
 
     // Now we prepare to initialize the menu layer
     Layer *window_layer = window_get_root_layer(s_main_window);
