@@ -67,10 +67,10 @@
 	}
 
 	const routineExamples = [
-		'Morning Routine',
-		'Brew Coffee',
-		'Clean Elephant',
-		'Evening Routine',
+		'Morning',
+		'Brew Tea',
+		'Clean Room',
+		'Evening',
 		'Cook food'
 	];
 	const taskExamples = [
@@ -99,7 +99,7 @@
 	}
 
 	const templateRoutines = {
-		'Morning Routine': [
+		'Morning': [
 			'Feed Cat',
 			'Drink Water',
 			'Brush Teeth',
@@ -109,7 +109,7 @@
 			'Measure weight',
 			'Eat breakfast'
 		],
-		'Evening Routine': [
+		'Evening': [
 			'Budgeting',
 			'Put away dishes on table',
 			'Brush teeth',
@@ -122,7 +122,7 @@
 			'Set alarm for tomorrow morning',
 			'Put phone in drawer'
 		],
-		'Lunchtime Poutine': [
+		'Poutine': [
 			'Soruce: seasonsandsuppers.ca/authentic-canadian-poutine-recipe/',
 			'Gather the following ingredients',
 			'3 Tbsp cornstarch',
